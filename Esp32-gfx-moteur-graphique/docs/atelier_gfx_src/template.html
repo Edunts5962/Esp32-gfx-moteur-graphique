@@ -1,0 +1,1254 @@
+<title>Atelier gfx</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Mise en page : colonne de lecture + sommaire collant à gauche ; les écrans 320x240 sont des « appareils » sombres dans les deux thèmes. */
+:root {
+  --bg: #EDF0F6;
+  --surface: #FFFFFF;
+  --surface2: #E3E8F2;
+  --ink: #121A2E;
+  --ink2: #48536F;
+  --line: #CCD4E4;
+  --accent: #0A7AA3;
+  --accent-ink: #FFFFFF;
+  --amber: #9A5F00;
+  --ok: #1F8A5B;
+  --warn: #B4471F;
+  --code-bg: #0D1324;
+  --code-fg: #DCE3F5;
+  --code-com: #6F7DA6;
+  --code-kw: #C792EA;
+  --code-str: #F2C46B;
+  --code-num: #F78C6C;
+  --code-fn: #4FD8F2;
+  --bezel: #0A0E1A;
+  --bezel-line: #26304D;
+  --f-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0A0F1D; --surface: #111A2E; --surface2: #18223B; --ink: #E3E9F6; --ink2: #9AA6C6; --line: #243150;
+    --accent: #3BD7F4; --accent-ink: #061020; --amber: #FFD24A; --ok: #49E39B; --warn: #FF8A65;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0A0F1D; --surface: #111A2E; --surface2: #18223B; --ink: #E3E9F6; --ink2: #9AA6C6; --line: #243150;
+  --accent: #3BD7F4; --accent-ink: #061020; --amber: #FFD24A; --ok: #49E39B; --warn: #FF8A65;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--f-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+
+/* ---------- en-tête ---------- */
+.entete { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--surface); border-bottom: 1px solid var(--line);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.entete-in { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 16px; height: 56px; }
+.logo { font: 700 20px/1 var(--f-display); letter-spacing: .02em; display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; white-space: nowrap; }
+.logo i { width: 12px; height: 12px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px color-mix(in srgb, var(--amber) 25%, transparent); }
+.nav-h { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; margin-left: auto; }
+.nav-h::-webkit-scrollbar { display: none; }
+.nav-h a { color: var(--ink2); text-decoration: none; font: 500 14px/1 var(--f-body); padding: 8px 10px; border-radius: 6px; white-space: nowrap; }
+.nav-h a:hover, .nav-h a:focus-visible { color: var(--ink); background: var(--surface2); }
+
+/* ---------- structure ---------- */
+.page { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 40px; padding-block: 32px 80px; }
+.sommaire { position: sticky; top: 88px; align-self: start; max-height: calc(100vh - 110px); overflow-y: auto; font-size: 14px; }
+.sommaire h2 { font: 600 12px/1 var(--f-display); text-transform: uppercase; letter-spacing: .12em; color: var(--ink2); margin: 0 0 12px; }
+.sommaire ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.sommaire a { display: block; padding: 5px 10px; border-left: 2px solid var(--line); color: var(--ink2); text-decoration: none; }
+.sommaire a:hover { color: var(--ink); }
+.sommaire a.actif { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.sommaire .sous a { padding-left: 22px; font-size: 13px; }
+main { min-width: 0; }
+@media (max-width: 900px) { .page { grid-template-columns: minmax(0, 1fr); } .sommaire { display: none; } }
+
+section.bloc { padding-block: 40px; border-top: 1px solid var(--line); }
+section.bloc:first-of-type { border-top: 0; padding-top: 0; }
+.surtitre { font: 600 12px/1 var(--f-display); text-transform: uppercase; letter-spacing: .14em; color: var(--accent); margin: 0 0 10px; }
+h1 { font: 700 clamp(30px, 5vw, 46px)/1.08 var(--f-display); margin: 0 0 16px; text-wrap: balance; letter-spacing: -.01em; }
+h2 { font: 700 clamp(24px, 3.4vw, 32px)/1.15 var(--f-display); margin: 0 0 12px; text-wrap: balance; }
+h3 { font: 600 20px/1.25 var(--f-display); margin: 28px 0 8px; text-wrap: balance; }
+h4 { font: 600 16px/1.3 var(--f-body); margin: 18px 0 6px; }
+p, li { max-width: 68ch; }
+p { margin: 0 0 14px; }
+.chapeau { font-size: 18px; color: var(--ink2); }
+a { color: var(--accent); }
+code { font: 400 .88em/1 var(--f-mono); background: var(--surface2); padding: 2px 5px; border-radius: 4px; }
+strong { font-weight: 600; }
+.note { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); padding: 12px 16px; margin: 14px 0; font-size: 15px; max-width: 72ch; }
+.note.attention { border-color: color-mix(in srgb, var(--warn) 50%, var(--line)); }
+.note b { color: var(--amber); }
+.note.attention b { color: var(--warn); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .08em; color: var(--ink2); }
+td code { white-space: nowrap; }
+.tablo { overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+
+/* ---------- code ---------- */
+.code { position: relative; margin: 12px 0 18px; border-radius: var(--r); background: var(--code-bg); border: 1px solid var(--bezel-line); }
+.code pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 400 13px/1.55 var(--f-mono); color: var(--code-fg); tab-size: 4; }
+.code .etq { position: absolute; top: 0; left: 14px; transform: translateY(-50%); font: 600 11px/1 var(--f-mono); color: var(--code-fn); background: var(--code-bg); border: 1px solid var(--bezel-line); padding: 3px 7px; border-radius: 4px; }
+.code .copier { position: absolute; top: 8px; right: 8px; font: 500 12px/1 var(--f-body); color: var(--code-fg); background: #1C2643; border: 1px solid var(--bezel-line); border-radius: 6px; padding: 6px 9px; cursor: pointer; opacity: .85; }
+.code .copier:hover, .code .copier:focus-visible { opacity: 1; }
+.c-com { color: var(--code-com); font-style: italic; } .c-kw { color: var(--code-kw); } .c-str { color: var(--code-str); }
+.c-num { color: var(--code-num); } .c-fn { color: var(--code-fn); } .c-pp { color: #8BD49C; }
+
+/* ---------- écran (appareil) ---------- */
+.appareil { background: var(--bezel); border: 1px solid var(--bezel-line); border-radius: 18px; padding: 14px; box-shadow: 0 20px 50px -24px rgba(5, 10, 30, .55); }
+.appareil canvas { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; image-rendering: pixelated; border-radius: 4px; touch-action: none; cursor: crosshair; background: #04060f; }
+.appareil .legende-app { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: 10px; font: 500 12px/1.3 var(--f-mono); color: #8C98BC; font-variant-numeric: tabular-nums; }
+.appareil .legende-app b { color: #4FD8F2; font-weight: 600; }
+.mini canvas { aspect-ratio: auto; }
+
+/* ---------- héros ---------- */
+.heros { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 36px; align-items: center; }
+@media (max-width: 1050px) { .heros { grid-template-columns: minmax(0, 1fr); } }
+.puces { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.puce { font: 500 13px/1 var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink2); border-radius: 999px; padding: 7px 11px; cursor: pointer; }
+.puce:hover { color: var(--ink); border-color: var(--ink2); }
+.puce[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.chiffres { display: flex; flex-wrap: wrap; gap: 22px; margin: 20px 0 0; padding: 0; list-style: none; }
+.chiffres li { display: grid; gap: 2px; }
+.chiffres b { font: 700 26px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.chiffres span { font-size: 13px; color: var(--ink2); }
+
+/* ---------- étapes ---------- */
+.etape { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 0 16px; padding-block: 22px; border-top: 1px dashed var(--line); }
+.etape:first-of-type { border-top: 0; }
+.etape .num { font: 700 18px/44px var(--f-display); width: 44px; height: 44px; border-radius: 50%; text-align: center; border: 2px solid var(--line); color: var(--ink2); font-variant-numeric: tabular-nums; }
+.etape.fait .num { background: var(--ok); border-color: var(--ok); color: var(--accent-ink); }
+.etape h3 { margin-top: 8px; }
+.fait-btn { font: 500 13px/1 var(--f-body); border: 1px solid var(--line); background: var(--surface); color: var(--ink2); border-radius: 6px; padding: 7px 10px; cursor: pointer; margin-top: 4px; }
+.etape.fait .fait-btn { color: var(--ok); border-color: var(--ok); }
+.progression { display: flex; align-items: center; gap: 12px; margin: 8px 0 4px; font-size: 14px; color: var(--ink2); }
+.progression .barre { flex: 1; max-width: 320px; height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+.progression .barre i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .3s; }
+.duo { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 760px) { .duo { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- réglages ---------- */
+.reglages { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px 14px; margin: 12px 0; }
+.reglage { display: grid; gap: 3px; font-size: 13px; }
+.reglage label { display: flex; justify-content: space-between; gap: 6px; color: var(--ink2); font-family: var(--f-mono); font-size: 12px; }
+.reglage output { color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+select, input[type="text"] { font: 400 14px/1.2 var(--f-body); padding: 7px 9px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- fiches API ---------- */
+.filtre { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+.filtre input { max-width: 320px; }
+.fiche { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); margin: 18px 0; overflow: hidden; }
+.fiche-tete { padding: 16px 18px 6px; }
+.fiche-tete .groupe { font: 600 11px/1 var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); }
+.fiche-tete h3 { margin: 6px 0 4px; font-family: var(--f-mono); font-size: 18px; }
+.sig { font: 400 13px/1.5 var(--f-mono); color: var(--ink2); overflow-x: auto; white-space: pre; padding-bottom: 4px; }
+.fiche-corps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; padding: 8px 18px 18px; }
+@media (max-width: 760px) { .fiche-corps { grid-template-columns: minmax(0, 1fr); } }
+.fiche .params { font-size: 13px; }
+.fiche .params td:first-child { font-family: var(--f-mono); color: var(--accent); white-space: nowrap; }
+.fiche .appareil { padding: 10px; border-radius: 12px; }
+.fiche .code { margin: 10px 0 0; }
+.fiche .code pre { font-size: 12.5px; }
+
+/* ---------- onglets ---------- */
+.onglets { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0; }
+.lab-grille { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 760px) { .lab-grille { grid-template-columns: minmax(0, 1fr); } }
+.cadre { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 14px; min-width: 0; }
+.cadre canvas.trace { width: 100%; height: auto; display: block; }
+.legende-courbes { display: flex; flex-wrap: wrap; gap: 10px 14px; font: 500 12px/1 var(--f-mono); margin-top: 8px; }
+.legende-courbes label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+.legende-courbes i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+.jeu { font: 400 15px/1.9 var(--f-mono); word-break: break-all; background: var(--surface2); padding: 10px 12px; border-radius: 8px; }
+.manque { color: var(--warn); font-weight: 600; }
+.ok { color: var(--ok); font-weight: 600; }
+details { margin: 10px 0; }
+summary { cursor: pointer; font-weight: 600; color: var(--accent); }
+.pied { color: var(--ink2); font-size: 14px; padding-top: 30px; border-top: 1px solid var(--line); }
+pre.mermaid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; overflow-x: auto; }
+</style>
+
+<header class="entete">
+  <div class="entete-in">
+    <a class="logo" href="#haut"><i></i>Atelier gfx</a>
+    <nav class="nav-h" aria-label="Sections">
+      <a href="#principe">Principe</a>
+      <a href="#tuto">Pas à pas</a>
+      <a href="#api">API</a>
+      <a href="#animer">Animer</a>
+      <a href="#polices">Polices</a>
+      <a href="#vitrine">Vitrine</a>
+      <a href="#annexes">Annexes</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page" id="haut">
+  <aside class="sommaire" aria-label="Sommaire">
+    <h2>Sommaire</h2>
+    <ol id="toc"></ol>
+  </aside>
+
+  <main>
+    <!-- ===================================================== HÉROS -->
+    <section class="bloc" id="intro">
+      <div class="heros">
+        <div>
+          <p class="surtitre">ESP32-S3 · ES3C28P · ILI9341 320 × 240</p>
+          <h1>Dessiner et animer l'écran 2,8" avec le moteur gfx</h1>
+          <p class="chapeau">Toutes les animations de la console « Lumière » sont calculées pixel par pixel par <code>gfx.cpp</code>, un moteur de dessin de 450 lignes écrit par Claude, l'IA d'Anthropic, sans LVGL. Cette page explique chaque fonction, montre chaque exemple en direct et déroule le montage pas à pas.</p>
+          <p>L'écran ci-contre exécute la vitrine <code>demo_gfx</code> avec le moteur porté en JavaScript : <strong>même algorithme, même format de couleur</strong>, rendu identique au pixel près au simulateur C++. La souris ou le doigt jouent le rôle du tactile.</p>
+          <ul class="chiffres">
+            <li><b>153 600</b><span>octets par image</span></li>
+            <li><b>16</b><span>bits par pixel (RGB565)</span></li>
+            <li><b>2</b><span>tampons, 2 cœurs</span></li>
+            <li><b>0</b><span>bibliothèque graphique externe</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="appareil">
+            <canvas id="ecran-heros" width="320" height="240" aria-label="Écran simulé de la carte : vitrine animée du moteur gfx"></canvas>
+            <div class="legende-app"><span id="lect-heros">Survolez l'écran : coordonnées et couleur</span><span>320 × 240</span></div>
+          </div>
+          <div class="puces" id="puces-heros" role="group" aria-label="Pages de la vitrine"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================== PRINCIPE -->
+    <section class="bloc" id="principe">
+      <p class="surtitre">1 · Principe</p>
+      <h2>Une image en mémoire, envoyée d'un bloc</h2>
+      <p>Le programme ne dessine jamais directement sur l'écran. Il calcule une image complète dans un tableau d'entiers 16 bits placé en PSRAM (le <em>tampon</em>, <code>gfx::fb</code>), puis l'envoie en une seule fois par SPI avec <code>tft.pushImage()</code>. Cela évite le scintillement, permet la transparence (il faut pouvoir relire le pixel du dessous) et les bords lissés.</p>
+
+      <pre class="mermaid">
+flowchart LR
+    T["Tactile FT6336<br/>ft6336_touch_read()"] --> U["Interface<br/>ui::toucher()"]
+    U --> I["ui::image(ms)<br/>redessine tout"]
+    I --> G["gfx::<br/>formes, halos, texte"]
+    G --> F["Tampon PSRAM<br/>320 x 240 x 16 bits"]
+    F --> S["TFT_eSPI<br/>pushImage()"]
+    S --> E["Écran ILI9341"]
+      </pre>
+
+      <h3>Le format de couleur RGB565</h3>
+      <p>Chaque pixel tient sur 16 bits : 5 pour le rouge, 6 pour le vert, 5 pour le bleu. <code>gfx::rgb(r, g, b)</code> fabrique cette valeur à partir de trois octets 0–255, à la compilation. Essayez :</p>
+      <div class="duo">
+        <div class="cadre">
+          <div class="reglages" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr))">
+            <div class="reglage"><label for="c565-r">r <output id="o-r">40</output></label><input id="c565-r" type="range" min="0" max="255" value="40"></div>
+            <div class="reglage"><label for="c565-g">g <output id="o-g">228</output></label><input id="c565-g" type="range" min="0" max="255" value="228"></div>
+            <div class="reglage"><label for="c565-b">b <output id="o-b">255</output></label><input id="c565-b" type="range" min="0" max="255" value="255"></div>
+          </div>
+          <div id="c565-bits" style="font:500 14px/1.6 var(--f-mono);overflow-x:auto;white-space:nowrap"></div>
+        </div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:stretch">
+            <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--ink2)">Demandée (24 bits)</div><div id="c565-avant" style="height:56px;border-radius:8px;border:1px solid var(--line)"></div></div>
+            <div style="flex:1;min-width:0"><div style="font-size:12px;color:var(--ink2)">Affichée (16 bits)</div><div id="c565-apres" style="height:56px;border-radius:8px;border:1px solid var(--line)"></div></div>
+          </div>
+          <div class="code"><pre id="c565-code"></pre></div>
+        </div>
+      </div>
+
+      <h3>Les bibliothèques utilisées</h3>
+      <div class="tablo"><table>
+        <thead><tr><th>Bibliothèque</th><th>Rôle dans le projet</th><th>Fonctions utilisées</th></tr></thead>
+        <tbody>
+          <tr><td><strong>gfx</strong> (maison)</td><td>Tout le dessin : formes lissées, transparence, halos, texte</td><td>voir la <a href="#api">référence API</a></td></tr>
+          <tr><td><strong>TFT_eSPI</strong></td><td>Envoyer l'image finie à l'écran, rien d'autre</td><td><code>init</code>, <code>setRotation(1)</code>, <code>setSwapBytes(true)</code>, <code>pushImage</code></td></tr>
+          <tr><td><strong>ft6336_touch</strong> (maison)</td><td>Lire le doigt, étalonnage 3 points en NVS</td><td><code>ft6336_touch_read</code>, <code>…_load_calibration</code></td></tr>
+          <tr><td><strong>FreeRTOS</strong></td><td>Envoi de l'image sur le cœur 0 pendant que le cœur 1 dessine</td><td><code>xTaskCreatePinnedToCore</code>, sémaphores binaires</td></tr>
+          <tr><td><strong>ESP-IDF</strong></td><td>Mémoire PSRAM, bus I²C partagé</td><td><code>heap_caps_malloc</code>, <code>i2c_new_master_bus</code></td></tr>
+          <tr><td><strong>Arduino-ESP32 3.x</strong></td><td>Rétroéclairage, mémoire non volatile</td><td><code>ledcAttachChannel</code>, <code>ledcWrite</code>, <code>Preferences</code></td></tr>
+          <tr><td><strong>Police Inter</strong></td><td>6 tailles converties en tableaux C (4 bits/pixel)</td><td><code>POLICE_11</code> … <code>POLICE_40</code></td></tr>
+        </tbody>
+      </table></div>
+      <div class="note"><b>Et LVGL ?</b> Il n'est pas utilisé. Les commentaires « v2.1-BETA-LVGL » dans <code>ft6336_touch.h</code> viennent de la console NES, d'où le pilote tactile a été repris. Le choix d'un moteur maison est expliqué en <a href="#annexes">annexe</a>.</div>
+    </section>
+
+    <!-- ===================================================== TUTO -->
+    <section class="bloc" id="tuto">
+      <p class="surtitre">2 · Tutoriel pas à pas</p>
+      <h2>De l'écran noir à l'interface animée</h2>
+      <p>Douze étapes, dans l'ordre où on les réalise sur la carte. Chaque étape ajoute une brique au croquis ; les aperçus exécutent le code montré. Cochez les étapes au fur et à mesure (mémorisé dans ce navigateur).</p>
+      <div class="progression"><span id="prog-txt">0 / 12 étapes</span><span class="barre"><i id="prog-barre"></i></span></div>
+
+      <div class="etape" id="e1"><div class="num">1</div><div>
+        <h3>Préparer l'IDE Arduino</h3>
+        <ul>
+          <li>Gestionnaire de cartes : paquet <strong>esp32</strong> d'Espressif, version <strong>3.x</strong>.</li>
+          <li>Carte <strong>ESP32S3 Dev Module</strong>, PSRAM <strong>OPI PSRAM</strong>, Flash <strong>16 Mo</strong>, partition « 16M Flash (3MB APP/9.9MB FATFS) ».</li>
+          <li>Bibliothèque <strong>TFT_eSPI</strong> (Bodmer) via le gestionnaire de bibliothèques.</li>
+        </ul>
+        <div class="note attention"><b>Sans PSRAM activée</b>, l'allocation des tampons échoue : le programme se replie sur un seul tampon en mémoire interne, et les animations ralentissent.</div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e2"><div class="num">2</div><div>
+        <h3>Configurer TFT_eSPI pour l'ILI9341</h3>
+        <p>TFT_eSPI se règle dans son fichier <code>User_Setup.h</code> (dossier de la bibliothèque). Reprenez celui de la console NES, qui fonctionne déjà sur l'ES3C28P. Les lignes qui comptent :</p>
+        <div class="code" data-etq="User_Setup.h"><pre>#define ILI9341_DRIVER
+#define TFT_WIDTH  240
+#define TFT_HEIGHT 320
+// TFT_MOSI, TFT_SCLK, TFT_CS, TFT_DC, TFT_RST : broches de la carte ES3C28P
+// (reprendre exactement celles du User_Setup.h de la console NES)
+#define USE_HSPI_PORT
+#define SPI_FREQUENCY  40000000   // 40 MHz ou plus : la fluidité en dépend</pre></div>
+        <p>La fréquence SPI fixe le temps d'envoi d'une image : 153 600 octets à 40 MHz prennent environ 31 ms, donc environ 30 images/s au maximum. L'<a href="#e9">étape 9</a> le montre.</p>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e3"><div class="num">3</div><div>
+        <h3>Créer le croquis et copier le moteur</h3>
+        <p>Un croquis Arduino est un dossier qui porte le nom du <code>.ino</code>. Copiez-y ces fichiers depuis <code>exemples/demo_gfx</code> :</p>
+        <div class="tablo"><table><thead><tr><th>Fichier</th><th>Contenu</th><th>À modifier ?</th></tr></thead><tbody>
+          <tr><td><code>gfx.h / gfx.cpp</code></td><td>Moteur de dessin</td><td>Non</td></tr>
+          <tr><td><code>polices.h / polices.cpp</code></td><td>Polices Inter générées</td><td>Non (régénérer pour ajouter des caractères)</td></tr>
+          <tr><td><code>ft6336_touch.h / .cpp</code></td><td>Pilote tactile</td><td>Non</td></tr>
+          <tr><td><code>mon_projet.ino</code></td><td>Matériel : écran, tampons, tactile</td><td>Oui</td></tr>
+          <tr><td><code>scene.h / scene.cpp</code></td><td>Vos écrans</td><td>Oui</td></tr>
+        </tbody></table></div>
+        <p>Le plus rapide : copier le dossier <code>exemples/demo_gfx</code> entier et le renommer.</p>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e4"><div class="num">4</div><div>
+        <h3>Allumer l'écran</h3>
+        <p>Le rétroéclairage est sur la broche 45, piloté en PWM pour régler la luminosité. Puis on initialise l'écran en paysage.</p>
+        <div class="code" data-etq="mon_projet.ino"><pre>#include &lt;Arduino.h&gt;
+#include &lt;TFT_eSPI.h&gt;
+#include "esp_heap_caps.h"
+#include "gfx.h"
+
+#define LCD_BL_PIN 45
+TFT_eSPI tft = TFT_eSPI();
+
+void setup() {
+    Serial.begin(115200);
+    ledcAttachChannel(LCD_BL_PIN, 2000, 8, 0);   // PWM 2 kHz, 8 bits
+    ledcWrite(LCD_BL_PIN, 204);                  // 80 % de luminosité
+    tft.init();
+    tft.setRotation(1);                          // paysage : 320 x 240
+    tft.setSwapBytes(true);                      // ordre des octets RGB565
+    tft.fillScreen(TFT_BLACK);
+}</pre></div>
+        <div class="note"><b>Pourquoi setSwapBytes(true) ?</b> L'ESP32 range l'octet de poids faible en premier, l'ILI9341 attend l'inverse. Avec cette option, <code>pushImage</code> retourne chaque pixel à l'envoi, et tout le reste du programme manipule des couleurs normales. Sans elle, le cyan devient un jaune sale.</div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e5"><div class="num">5</div><div>
+        <h3>Réserver le tampon d'image en PSRAM</h3>
+        <p>320 × 240 pixels × 2 octets = 153 600 octets. La mémoire interne de l'ESP32-S3 n'en garderait presque plus pour le reste ; la PSRAM de 8 Mo, si.</p>
+        <div class="code" data-etq="setup()"><pre>static uint16_t *tampon = nullptr;
+
+// dans setup(), après tft.init() :
+tampon = (uint16_t *)heap_caps_malloc(320 * 240 * sizeof(uint16_t), MALLOC_CAP_SPIRAM);
+if (!tampon) {
+    tft.drawString("Memoire insuffisante", 10, 10, 2);
+    for (;;) delay(1000);
+}
+gfx::init(tampon);     // gfx dessine désormais dans ce tableau</pre></div>
+        <p>Le pixel (x, y) est <code>gfx::fb[y * 320 + x]</code>. L'origine est en haut à gauche, <strong>y descend</strong>.</p>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e6"><div class="num">6</div><div>
+        <h3>Premier dessin, premier envoi</h3>
+        <p>On dessine du fond vers l'avant : l'ordre des appels est l'ordre de superposition. Rien n'apparaît tant que <code>pushImage</code> n'est pas appelé.</p>
+        <div class="duo">
+          <div class="code" data-etq="setup() : suite"><pre id="code-e6"></pre></div>
+          <div class="appareil mini"><canvas id="ecran-e6" width="320" height="240" aria-label="Résultat du premier dessin"></canvas></div>
+        </div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e7"><div class="num">7</div><div>
+        <h3>Animer : redessiner à chaque image avec dt</h3>
+        <p><code>loop()</code> redessine toute l'image en fonction du temps. On calcule <code>dt</code>, le temps écoulé depuis l'image précédente, et on exprime toutes les vitesses en unités par seconde. Changez le nombre d'images/s simulées : le point garde la même vitesse, seule la fluidité change.</p>
+        <div class="duo">
+          <div class="code" data-etq="loop()"><pre id="code-e7"></pre></div>
+          <div>
+            <div class="appareil mini"><canvas id="ecran-e7" width="320" height="240" aria-label="Animation indépendante du nombre d'images par seconde"></canvas></div>
+            <div class="reglages"><div class="reglage"><label for="ips-e7">images/s simulées <output id="o-ips-e7">30</output></label><input id="ips-e7" type="range" min="4" max="60" value="30"></div></div>
+          </div>
+        </div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e8"><div class="num">8</div><div>
+        <h3>Pré-calculer le fond</h3>
+        <p>Le dégradé et les grands halos du fond coûtent cher, et ils ne bougent pas. On les dessine une seule fois dans un deuxième tampon, puis on le recopie à chaque image avec <code>gfx::copier()</code> (un simple <code>memcpy</code> de 150 Ko).</p>
+        <div class="code" data-etq="pré-calcul"><pre>static uint16_t *fond = nullptr;
+
+void preparer_fond() {
+    fond = (uint16_t *)heap_caps_malloc(320 * 240 * 2, MALLOC_CAP_SPIRAM);
+    uint16_t *ancien = gfx::fb;
+    gfx::fb = fond;                                    // dessiner AILLEURS
+    gfx::degrade_v(0, 0, 320, 240, gfx::rgb(4, 6, 18), gfx::rgb(16, 12, 42));
+    gfx::halo(255, 50, 150, gfx::rgb(140, 92, 255), 34);
+    gfx::halo(40, 210, 140, gfx::rgb(70, 120, 255), 26);
+    gfx::fb = ancien;                                  // et revenir
+}
+
+// à chaque image :
+gfx::copier(fond);</pre></div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e9"><div class="num">9</div><div>
+        <h3>Double tampon sur les deux cœurs</h3>
+        <p>Avec un seul tampon, il faut attendre la fin de l'envoi avant de redessiner. Avec deux, le cœur 0 envoie l'image <em>n</em> pendant que le cœur 1 dessine l'image <em>n+1</em>. Réglez les temps et comparez.</p>
+        <div class="cadre">
+          <div class="reglages">
+            <div class="reglage"><label for="db-spi">SPI (MHz) <output id="o-db-spi">40</output></label><input id="db-spi" type="range" min="10" max="80" step="10" value="40"></div>
+            <div class="reglage"><label for="db-des">dessin (ms) <output id="o-db-des">22</output></label><input id="db-des" type="range" min="4" max="60" value="22"></div>
+            <div class="reglage"><label for="db-mode">mode</label><select id="db-mode"><option value="2">Deux tampons</option><option value="1">Un tampon</option></select></div>
+          </div>
+          <div style="overflow-x:auto"><canvas id="db-canvas" class="trace" width="900" height="210" style="min-width:560px" aria-label="Chronogramme des deux cœurs"></canvas></div>
+          <p id="db-res" style="margin:10px 0 0;font:600 15px/1.4 var(--f-mono)"></p>
+        </div>
+        <div class="code" data-etq="demo_gfx.ino"><pre id="code-e9"></pre></div>
+        <p>Dans <code>setup()</code> : deux tampons PSRAM, deux sémaphores binaires, et la tâche d'envoi épinglée sur le cœur 0.</p>
+        <div class="code" data-etq="setup()"><pre>s_tampon[0] = (uint16_t *)heap_caps_malloc(320 * 240 * 2, MALLOC_CAP_SPIRAM);
+s_tampon[1] = (uint16_t *)heap_caps_malloc(320 * 240 * 2, MALLOC_CAP_SPIRAM);
+s_sem_pret  = xSemaphoreCreateBinary();
+s_sem_libre = xSemaphoreCreateBinary();
+xSemaphoreGive(s_sem_libre);          // au départ, aucun envoi en cours
+xTaskCreatePinnedToCore(tache_ecran, "ecran", 4096, NULL, 2, NULL, 0);</pre></div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e10"><div class="num">10</div><div>
+        <h3>Brancher le tactile</h3>
+        <p>Le FT6336 est en I²C (SDA 16, SCL 15, reset 18). On crée <strong>un seul</strong> bus avec le nouveau pilote ESP-IDF : le codec audio ES8311 pourra s'y attacher aussi. L'étalonnage 3 points est demandé seulement s'il n'existe pas en mémoire non volatile.</p>
+        <div class="code" data-etq="tactile"><pre>#include "driver/i2c_master.h"
+#include "ft6336_touch.h"
+
+bool init_tactile() {
+    i2c_master_bus_handle_t bus = NULL;
+    i2c_master_bus_config_t cfg = {};
+    cfg.i2c_port = I2C_NUM_0;
+    cfg.sda_io_num = (gpio_num_t)16;
+    cfg.scl_io_num = (gpio_num_t)15;
+    cfg.clk_source = I2C_CLK_SRC_DEFAULT;
+    cfg.glitch_ignore_cnt = 7;
+    cfg.flags.enable_internal_pullup = true;
+    if (i2c_new_master_bus(&amp;cfg, &amp;bus) != ESP_OK) return false;
+    return ft6336_touch_init(bus, (gpio_num_t)18, 320, 240);
+}
+
+// dans setup() :
+if (init_tactile() &amp;&amp; !ft6336_touch_load_calibration()) etalonner();
+
+// dans loop(), à chaque image :
+int x = 0, y = 0;
+bool appui = ft6336_touch_read(&amp;x, &amp;y);    // coordonnées écran 320 x 240
+scene::toucher(appui, x, y);</pre></div>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e11"><div class="num">11</div><div>
+        <h3>Transformer les appuis en gestes</h3>
+        <p>Le pilote dit seulement « doigt posé en (x, y) » ou non. En comparant avec l'image précédente, on détecte le moment où le doigt se pose, glisse ou se lève. Essayez sur l'écran : un appui court donne un <em>tap</em>, un déplacement un <em>glisser</em>, un grand mouvement horizontal un <em>balayage</em>.</p>
+        <div class="duo">
+          <div>
+            <pre class="mermaid">
+stateDiagram-v2
+    [*] --> Leve
+    Leve --> Pose: doigt posé
+    Pose --> Pose: glisse (bouge si plus de 6 px)
+    Pose --> Leve: levé (tap, balayage ou fin de glisser)
+            </pre>
+          </div>
+          <div class="appareil mini"><canvas id="ecran-e11" width="320" height="240" aria-label="Zone d'essai des gestes tactiles"></canvas>
+            <div class="legende-app"><span id="lect-e11">Touchez ou cliquez l'écran</span></div></div>
+        </div>
+        <details><summary>Le code de la machine à états (scene.cpp)</summary><div class="code" data-etq="scene.cpp"><pre id="code-e11"></pre></div></details>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+
+      <div class="etape" id="e12"><div class="num">12</div><div>
+        <h3>Organiser l'interface et tester sur PC</h3>
+        <p>Le croquis ne garde que le matériel. Tout le dessin vit dans <code>scene.cpp</code>, qui n'inclut jamais <code>Arduino.h</code> : il compile aussi sur PC. Trois fonctions suffisent.</p>
+        <div class="code" data-etq="scene.h"><pre>namespace scene {
+void init(uint16_t *fond);                 // une fois, au démarrage
+void toucher(bool appui, int x, int y);    // à chaque image
+void image(uint32_t ms);                   // dessine une image complète dans gfx::fb
+}</pre></div>
+        <p>Le simulateur remplace le <code>.ino</code> : il appelle les mêmes fonctions avec une horloge simulée, rejoue des appuis et enregistre les images.</p>
+        <div class="code" data-etq="terminal"><pre>cd exemples/demo_gfx
+g++ -std=c++17 -O2 -I. sim_demo.cpp scene.cpp gfx.cpp polices.cpp -o sim_demo
+mkdir -p sortie &amp;&amp; ./sim_demo sortie
+python3 ppm_vers_png.py sortie        # captures PNG + animation GIF</pre></div>
+        <details><summary>La boucle image() complète (scene.cpp)</summary><div class="code" data-etq="scene.cpp"><pre id="code-e12"></pre></div></details>
+        <button class="fait-btn" type="button">Marquer comme fait</button>
+      </div></div>
+    </section>
+
+    <!-- ===================================================== API -->
+    <section class="bloc" id="api">
+      <p class="surtitre">3 · Référence</p>
+      <h2>Toutes les fonctions de gfx</h2>
+      <p>Chaque fiche donne la signature, les paramètres, un aperçu réglable et le code C++ correspondant, prêt à copier. Conventions : coordonnées en pixels depuis le coin haut gauche, <code>a</code> = opacité 0–255 (255 par défaut), angles en <strong>radians</strong>, sens horaire puisque y descend. Les formes « lissées » acceptent des coordonnées décimales.</p>
+      <div class="filtre">
+        <input id="api-filtre" type="text" placeholder="Filtrer : disque, texte, halo…" aria-label="Filtrer les fonctions">
+        <div class="onglets" id="api-groupes" role="group" aria-label="Familles"></div>
+      </div>
+      <div id="fiches"></div>
+      <h3>Fonctions sans aperçu</h3>
+      <div class="tablo"><table><thead><tr><th>Fonction</th><th>Rôle</th></tr></thead><tbody>
+        <tr><td><code>void init(uint16_t *tampon)</code></td><td>Choisit le tampon de dessin et supprime la découpe.</td></tr>
+        <tr><td><code>uint16_t *fb</code></td><td>Tampon courant. Le changer permet de dessiner ailleurs (fond pré-calculé, <a href="#e8">étape 8</a>).</td></tr>
+        <tr><td><code>void copier(const uint16_t *src)</code></td><td>Copie une image complète dans <code>fb</code>.</td></tr>
+        <tr><td><code>int hauteur(const PoliceAA &amp;p)</code></td><td>Interligne de la police (pour empiler des lignes).</td></tr>
+        <tr><td><code>const int L = 320, H = 240</code></td><td>Dimensions de l'écran.</td></tr>
+      </tbody></table></div>
+      <details><summary>Le fichier gfx.h complet</summary><div class="code" data-etq="gfx.h"><pre id="code-gfxh"></pre></div></details>
+    </section>
+
+    <!-- ===================================================== ANIMER -->
+    <section class="bloc" id="animer">
+      <p class="surtitre">4 · Animer</p>
+      <h2>Le laboratoire du mouvement</h2>
+      <p>Toutes les animations reposent sur quelques fonctions de quelques lignes. Une animation « à durée » applique une courbe à un âge <code>(t − t0) / durée</code> ; une animation « qui suit » rapproche à chaque image une valeur affichée de sa valeur cible.</p>
+
+      <h3>Courbes d'accélération</h3>
+      <div class="lab-grille">
+        <div class="cadre">
+          <canvas id="ease-canvas" class="trace" width="600" height="420" aria-label="Courbes d'accélération"></canvas>
+          <div class="legende-courbes" id="ease-legende"></div>
+        </div>
+        <div class="code" data-etq="outils d'animation"><pre id="code-ease"></pre></div>
+      </div>
+
+      <h3>approche() et ressort : suivre une cible</h3>
+      <p>La cible saute de 0 à 1 toutes les deux secondes. <code>approche()</code> la rejoint sans la dépasser ; le ressort la dépasse puis revient. Réglez les constantes et copiez le code.</p>
+      <div class="lab-grille">
+        <div class="cadre">
+          <canvas id="ressort-canvas" class="trace" width="600" height="300" aria-label="Réponse de approche et du ressort"></canvas>
+          <div class="reglages">
+            <div class="reglage"><label for="k-app">approche k <output id="o-k-app">5</output></label><input id="k-app" type="range" min="1" max="20" step="0.5" value="5"></div>
+            <div class="reglage"><label for="k-res">raideur <output id="o-k-res">140</output></label><input id="k-res" type="range" min="20" max="400" step="10" value="140"></div>
+            <div class="reglage"><label for="a-res">amortissement <output id="o-a-res">7</output></label><input id="a-res" type="range" min="1" max="30" step="0.5" value="7"></div>
+          </div>
+        </div>
+        <div class="code" data-etq="à chaque image"><pre id="code-ressort"></pre></div>
+      </div>
+
+      <h3>Les recettes de l'interface</h3>
+      <div class="tablo"><table><thead><tr><th>Effet</th><th>Recette</th><th>Où le voir</th></tr></thead><tbody>
+        <tr><td>Glissement d'un surlignage</td><td><code>aff = approche(aff, cible, 14)</code></td><td>Barre d'onglets de la console</td></tr>
+        <tr><td>Respiration, clignotement</td><td><code>a = 110 + 60 * pulse(0.7f)</code></td><td>Logo, bouton MESURER</td></tr>
+        <tr><td>Fondu d'entrée</td><td><code>rect(..., FOND, 230 * (1 - sortie(age / 0.25f)))</code></td><td>Changement de page</td></tr>
+        <tr><td>Message qui descend</td><td><code>y = -20 + 50 * sortie(age / 0.3f)</code></td><td>Toast « Bouton appuyé »</td></tr>
+        <tr><td>Mouvement périodique</td><td><code>u = fmodf(t / periode, 1.0f)</code></td><td>Photons, reflet de bouton</td></tr>
+        <tr><td>Onde de choc</td><td><code>anneau(x, y, 6 + 30 * sortie(age), 1.5f, c, 200 * (1 - age))</code></td><td>Arrivée d'un photon, toucher</td></tr>
+        <tr><td>Traînée</td><td>garder les 8 dernières positions, disques de plus en plus petits</td><td>Page Mouvement, comète</td></tr>
+        <tr><td>Particules</td><td>tableau de structures, gravité, vie qui diminue</td><td>Révélation de c, page Particules</td></tr>
+        <tr><td>Inertie au lâcher</td><td>vitesse lissée pendant le glisser, puis <code>v *= expf(-3 * dt)</code></td><td>Règle des distances, curseur</td></tr>
+      </tbody></table></div>
+    </section>
+
+    <!-- ===================================================== POLICES -->
+    <section class="bloc" id="polices">
+      <p class="surtitre">5 · Texte</p>
+      <h2>Les polices lissées</h2>
+      <p>Les polices ne sont pas lues depuis un fichier : <code>outils/generer_polices.py</code> dessine chaque caractère d'Inter avec Pillow et l'enregistre en 4 bits par pixel (16 niveaux d'opacité) dans <code>polices.cpp</code>. L'aperçu ci-dessous utilise ces mêmes glyphes. Les caractères absents s'affichent comme <code>?</code>.</p>
+      <div class="lab-grille">
+        <div>
+          <div class="appareil mini"><canvas id="ecran-txt" width="320" height="120" aria-label="Essai de texte avec les polices de la carte"></canvas></div>
+          <div class="reglages">
+            <div class="reglage" style="grid-column:1/-1"><label for="txt-in">texte</label><input id="txt-in" type="text" value="Écho à 17 m · c ≈ 343 m/s"></div>
+            <div class="reglage"><label for="txt-pol">police</label><select id="txt-pol"></select></div>
+            <div class="reglage"><label for="txt-al">alignement</label><select id="txt-al"><option value="0">GAUCHE</option><option value="1" selected>CENTRE</option><option value="2">DROITE</option></select></div>
+            <div class="reglage"><label for="txt-coul">couleur</label><select id="txt-coul"></select></div>
+            <div class="reglage"><label for="txt-a">a <output id="o-txt-a">255</output></label><input id="txt-a" type="range" min="0" max="255" value="255"></div>
+          </div>
+          <p id="txt-info" style="font-size:14px"></p>
+        </div>
+        <div>
+          <div class="code" data-etq="C++"><pre id="code-txt"></pre></div>
+          <div class="tablo"><table><thead><tr><th>Police</th><th>Fichier</th><th>Interligne</th><th>Caractères</th></tr></thead><tbody>
+            <tr><td><code>POLICE_11</code></td><td>Inter Medium</td><td>14</td><td>jeu complet</td></tr>
+            <tr><td><code>POLICE_13</code></td><td>Inter SemiBold</td><td>17</td><td>jeu complet</td></tr>
+            <tr><td><code>POLICE_16</code></td><td>Inter Bold</td><td>20</td><td>jeu complet</td></tr>
+            <tr><td><code>POLICE_22</code></td><td>Inter Display Bold</td><td>28</td><td>jeu complet</td></tr>
+            <tr><td><code>POLICE_30</code></td><td>Inter Display Bold</td><td>38</td><td>majuscules, È, É</td></tr>
+            <tr><td><code>POLICE_40</code></td><td>Inter Display Bold</td><td>49</td><td>chiffres et , . - + % × −</td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+      <h4>Caractères de la police choisie</h4>
+      <div class="jeu" id="txt-jeu"></div>
+      <h3>Ajouter des caractères ou une taille</h3>
+      <div class="code" data-etq="outils/generer_polices.py"><pre>BASE = (... + "«»’œŒ")                                    # nouveaux caractères
+POLICES = [ ..., ("POLICE_18", "Inter-Bold.otf", 18, BASE) ]   # nouvelle taille</pre></div>
+      <div class="code" data-etq="terminal"><pre>python3 outils/generer_polices.py &lt;dossier_des_otf_inter&gt; exemples/demo_gfx</pre></div>
+      <p>Chaque police complète coûte 10 à 25 Ko de mémoire flash. Les chiffres ont tous la même largeur : un nombre qui change ne fait pas trembler l'affichage.</p>
+    </section>
+
+    <!-- ===================================================== VITRINE -->
+    <section class="bloc" id="vitrine">
+      <p class="surtitre">6 · Vitrine page par page</p>
+      <h2>Les 9 exemples de demo_gfx</h2>
+      <p>Choisissez une page : l'écran l'affiche, avec les techniques utilisées et le code C++ réel de <code>scene.cpp</code>. L'écran reste interactif (explosions, curseur, bouton, interrupteur).</p>
+      <div class="onglets" id="vit-onglets" role="tablist" aria-label="Pages de la vitrine"></div>
+      <div class="duo">
+        <div>
+          <div class="appareil"><canvas id="ecran-vit" width="320" height="240" aria-label="Page de la vitrine"></canvas>
+            <div class="legende-app"><span id="lect-vit">&nbsp;</span><span>scene.cpp</span></div></div>
+        </div>
+        <div id="vit-texte"></div>
+      </div>
+      <div class="code" data-etq="scene.cpp"><pre id="vit-code"></pre></div>
+    </section>
+
+    <!-- ===================================================== ANNEXES -->
+    <section class="bloc" id="annexes">
+      <p class="surtitre">7 · Annexes</p>
+      <h2>Performances, dépannage, LVGL</h2>
+
+      <h3 id="perf">Gagner des images par seconde</h3>
+      <div class="tablo"><table><thead><tr><th>Conseil</th><th>Pourquoi</th></tr></thead><tbody>
+        <tr><td><code>SPI_FREQUENCY</code> ≥ 40 MHz</td><td>L'envoi de 150 Ko est le premier facteur limitant.</td></tr>
+        <tr><td>Fond pré-calculé + <code>copier()</code></td><td>Un <code>memcpy</code> coûte bien moins qu'un dégradé et des grands halos.</td></tr>
+        <tr><td>Double tampon PSRAM</td><td>Dessin et envoi en parallèle sur les deux cœurs.</td></tr>
+        <tr><td><code>rect</code> plutôt que <code>rect_arrondi</code> pour les grandes surfaces</td><td><code>rect</code> n'a aucun calcul par pixel.</td></tr>
+        <tr><td>Halos petits</td><td>Le coût croît comme le carré du rayon.</td></tr>
+        <tr><td>Opaque si possible</td><td>Un pixel opaque est une écriture ; transparent = lecture + mélange.</td></tr>
+        <tr><td><code>decoupe()</code></td><td>Les pixels hors zone sont sautés avant tout calcul.</td></tr>
+        <tr><td>Mesurer</td><td>La vitrine affiche les images/s en haut à droite.</td></tr>
+      </tbody></table></div>
+
+      <h3 id="depannage">Dépannage</h3>
+      <div class="tablo"><table><thead><tr><th>Symptôme</th><th>Cause probable</th><th>Solution</th></tr></thead><tbody>
+        <tr><td>Écran noir</td><td>Rétroéclairage ou <code>User_Setup.h</code></td><td>Vérifier <code>ledcWrite(45, …)</code> et reprendre la configuration de la console NES</td></tr>
+        <tr><td>Couleurs fausses (cyan devenu jaune)</td><td>Ordre des octets</td><td><code>tft.setSwapBytes(true)</code></td></tr>
+        <tr><td>Animation saccadée</td><td>SPI lent ou un seul tampon</td><td>40 MHz ou plus, PSRAM « OPI » activée</td></tr>
+        <tr><td>« Memoire insuffisante »</td><td>PSRAM désactivée</td><td>Outils › PSRAM › OPI PSRAM</td></tr>
+        <tr><td>Un arc disparaît après quelques secondes</td><td>Angle de départ qui grandit sans fin</td><td><code>fmodf(t * vitesse, 2 * PI)</code></td></tr>
+        <tr><td>Des <code>?</code> à la place de lettres</td><td>Caractère absent de la police</td><td>Voir <a href="#polices">Polices</a> ; <code>POLICE_30</code> et <code>POLICE_40</code> sont partielles</td></tr>
+        <tr><td>Le toucher est décalé</td><td>Étalonnage ancien ou raté</td><td>Effacer la NVS ou appeler l'étalonnage 3 points</td></tr>
+      </tbody></table></div>
+
+      <h3 id="lvgl">gfx ou LVGL ?</h3>
+      <div class="tablo"><table><thead><tr><th></th><th>gfx (ce projet)</th><th>LVGL</th></tr></thead><tbody>
+        <tr><td>Taille</td><td>1 fichier, ~450 lignes</td><td>bibliothèque complète, <code>lv_conf.h</code></td></tr>
+        <tr><td>Modèle</td><td>immédiat : on redessine tout</td><td>retenu : des objets que LVGL redessine</td></tr>
+        <tr><td>Animations libres, halos, particules</td><td>naturels</td><td>possibles, plus laborieux</td></tr>
+        <tr><td>Widgets tout faits (listes, clavier)</td><td>à écrire</td><td>fournis</td></tr>
+        <tr><td>Simulateur PC</td><td><code>g++</code> suffit</td><td>possible avec SDL</td></tr>
+        <tr><td>Lisible par des étudiants</td><td>oui, en entier</td><td>surtout l'API</td></tr>
+      </tbody></table></div>
+      <p>Si un projet a besoin de nombreux formulaires, LVGL peut se brancher sur les mêmes briques : TFT_eSPI pour l'envoi, <code>ft6336_touch_read</code> pour le doigt. Esquisse pour LVGL 9, non testée sur cette carte :</p>
+      <div class="code" data-etq="LVGL 9 (esquisse)"><pre>static void flush_cb(lv_display_t *disp, const lv_area_t *a, uint8_t *px) {
+    tft.pushImage(a-&gt;x1, a-&gt;y1, a-&gt;x2 - a-&gt;x1 + 1, a-&gt;y2 - a-&gt;y1 + 1, (uint16_t *)px);
+    lv_display_flush_ready(disp);
+}
+static void touch_cb(lv_indev_t *, lv_indev_data_t *d) {
+    int x, y;
+    if (ft6336_touch_read(&amp;x, &amp;y)) { d-&gt;point.x = x; d-&gt;point.y = y; d-&gt;state = LV_INDEV_STATE_PRESSED; }
+    else d-&gt;state = LV_INDEV_STATE_RELEASED;
+}
+// setup() : lv_init(); lv_tick_set_cb(millis_cb);
+//   lv_display_t *disp = lv_display_create(320, 240);
+//   lv_display_set_buffers(disp, buf1, buf2, taille, LV_DISPLAY_RENDER_MODE_PARTIAL);
+//   lv_display_set_flush_cb(disp, flush_cb);
+//   lv_indev_t *ind = lv_indev_create(); lv_indev_set_type(ind, LV_INDEV_TYPE_POINTER);
+//   lv_indev_set_read_cb(ind, touch_cb);
+// loop() : lv_timer_handler(); delay(5);</pre></div>
+      <p class="pied">Moteur gfx, interface animée, vitrine et cette page : développés par Claude, l'IA d'Anthropic. Dépôt <a href="https://github.com/Edunts5962/Esp32-gfx-moteur-graphique">Esp32-gfx-moteur-graphique</a> ; projet d'origine : <a href="https://github.com/Edunts5962/Esp32-vitesse-de-la-lumi-re-">Esp32-vitesse-de-la-lumi-re-</a>. Police Inter © Rasmus Andersson, licence SIL Open Font License 1.1. Les écrans de cette page exécutent un portage JavaScript de <code>gfx.cpp</code> et <code>scene.cpp</code>.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+/*__MOTEUR__*/
+/*__SRC__*/
+
+// ======================================================================
+//  Outils de page
+// ======================================================================
+const P = chargerPolices(POLICES_DATA);
+const rgb = Gfx.rgb;
+const PAL = {
+  CYAN: [40, 228, 255], JAUNE: [255, 212, 64], MAGENTA: [255, 64, 200], VERT: [60, 255, 156], ORANGE: [255, 140, 60],
+  VIOLET: [140, 92, 255], BLEU: [70, 120, 255], ROUGE: [255, 78, 106], TEXTE: [236, 242, 255], TEXTE2: [156, 168, 210],
+};
+const C = Object.fromEntries(Object.entries(PAL).map(([k, v]) => [k, rgb(...v)]));
+const FOND_HAUT = rgb(4, 6, 18), FOND_BAS = rgb(16, 12, 42), PANNEAU = rgb(16, 22, 52), GRILLE = rgb(34, 44, 92);
+const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function echapper(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+const KW = new Set("static const constexpr void int float bool uint8_t uint16_t uint32_t int8_t size_t if else for while return switch case break default continue struct enum namespace using auto true false nullptr char double volatile".split(" "));
+function colorer(src) {
+  const re = /(\/\/[^\n]*|\/\*[\s\S]*?\*\/)|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])')|(#\s*\w+)|(\b0x[0-9A-Fa-f]+\b|\b\d+(?:\.\d+)?f?\b)|([A-Za-z_]\w*)(?=\s*\()|([A-Za-z_]\w*)/g;
+  let out = "", last = 0, m;
+  while ((m = re.exec(src))) {
+    out += echapper(src.slice(last, m.index));
+    const s = echapper(m[0]);
+    if (m[1]) out += `<span class="c-com">${s}</span>`;
+    else if (m[2]) out += `<span class="c-str">${s}</span>`;
+    else if (m[3]) out += `<span class="c-pp">${s}</span>`;
+    else if (m[4]) out += `<span class="c-num">${s}</span>`;
+    else if (m[5]) out += KW.has(m[5]) ? `<span class="c-kw">${s}</span>` : `<span class="c-fn">${s}</span>`;
+    else out += KW.has(m[6]) ? `<span class="c-kw">${s}</span>` : s;
+    last = re.lastIndex;
+  }
+  return out + echapper(src.slice(last));
+}
+function poserCode(pre, src) { pre.dataset.src = src; pre.innerHTML = colorer(src); }
+function equiperCode(bloc) {
+  const pre = bloc.querySelector("pre");
+  if (!pre.dataset.src) poserCode(pre, pre.textContent.replace(/^\n+|\s+$/g, ""));
+  if (bloc.dataset.etq && !bloc.querySelector(".etq")) { const e = document.createElement("span"); e.className = "etq"; e.textContent = bloc.dataset.etq; bloc.prepend(e); }
+  if (!bloc.querySelector(".copier")) {
+    const b = document.createElement("button"); b.type = "button"; b.className = "copier"; b.textContent = "Copier";
+    b.addEventListener("click", () => {
+      const txt = pre.dataset.src || pre.textContent;
+      const fini = ok => { b.textContent = ok ? "Copié" : "Sélectionné"; setTimeout(() => (b.textContent = "Copier"), 1400); };
+      const repli = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); fini(false); };
+      try { navigator.clipboard.writeText(txt).then(() => fini(true), repli); } catch (e) { repli(); }
+    });
+    bloc.appendChild(b);
+  }
+}
+const f1 = v => (Math.round(v * 10) / 10).toString();
+const ff = v => { const s = (Math.round(v * 100) / 100).toString(); return s.includes(".") ? s + "f" : s; };
+function hex565(c) { return "0x" + c.toString(16).toUpperCase().padStart(4, "0"); }
+function couleur565(c) { let r = (c >> 11) << 3, g = ((c >> 5) & 63) << 2, b = (c & 31) << 3; return [r | (r >> 5), g | (g >> 6), b | (b >> 5)]; }
+
+// Écran : un Gfx + un canvas + une fonction de dessin ; tourne seulement quand il est visible
+const ecrans = [];
+function creerEcran(canvas, dessiner, opts = {}) {
+  const W = canvas.width, Hh = canvas.height, g = new Gfx(W, Hh);
+  const ctx = canvas.getContext("2d"), img = ctx.createImageData(W, Hh);
+  const e = { canvas, g, ctx, img, dessiner, visible: false, anime: opts.anime !== false, sale: true, appui: false, x: 0, y: 0, t0: performance.now() };
+  e.peindre = () => { g.versImageData(img); ctx.putImageData(img, 0, 0); };
+  e.coord = ev => { const r = canvas.getBoundingClientRect(); return [Math.max(0, Math.min(W - 1, Math.floor((ev.clientX - r.left) / r.width * W))), Math.max(0, Math.min(Hh - 1, Math.floor((ev.clientY - r.top) / r.height * Hh)))]; };
+  canvas.addEventListener("pointerdown", ev => { canvas.setPointerCapture(ev.pointerId); [e.x, e.y] = e.coord(ev); e.appui = true; e.sale = true; opts.survol && opts.survol(e); });
+  canvas.addEventListener("pointermove", ev => { [e.x, e.y] = e.coord(ev); e.dedans = true; e.sale = true; opts.survol && opts.survol(e); });
+  canvas.addEventListener("pointerup", () => { e.appui = false; e.sale = true; });
+  canvas.addEventListener("pointercancel", () => { e.appui = false; });
+  canvas.addEventListener("pointerleave", () => { e.dedans = false; opts.sortie && opts.sortie(e); });
+  ecrans.push(e);
+  return e;
+}
+const obs = new IntersectionObserver(es => es.forEach(x => { const e = ecrans.find(k => k.canvas === x.target); if (e) { e.visible = x.isIntersecting; e.sale = true; } }), { rootMargin: "100px" });
+function boucle(now) {
+  for (const e of ecrans) {
+    if (!e.visible) continue;
+    if (e.anime && !reduit) { e.dessiner(e, now); e.peindre(); }
+    else if (e.sale) { e.dessiner(e, now); e.peindre(); e.sale = false; }
+  }
+  requestAnimationFrame(boucle);
+}
+function demarrer() { ecrans.forEach(e => obs.observe(e.canvas)); requestAnimationFrame(boucle); }
+
+function lecturePixel(e, el) {
+  const c = e.g.fb[e.y * e.g.L + e.x], [r, g, b] = couleur565(c);
+  el.innerHTML = `x <b>${e.x}</b> · y <b>${e.y}</b> · <b>${hex565(c)}</b> = rgb(${r}, ${g}, ${b})`;
+}
+
+// ======================================================================
+//  Héros et vitrine : la vraie scène
+// ======================================================================
+const NOMS_PAGES = ["Primitives", "Transparence", "Mouvement", "Arcs et jauges", "Texte", "Courbes", "Particules", "Tactile", "Découpe"];
+function creerVitrine(canvas, lect, auto) {
+  let scene = null, ms = 0, dern = 0;
+  const e = creerEcran(canvas, (e, now) => {
+    if (!scene) { scene = creerScene(e.g, P); scene.init(); scene.auto(auto); }
+    const pas = dern ? Math.min(100, now - dern) : 33; dern = now; ms += pas;
+    scene.toucher(e.appui, e.x, e.y); scene.image(Math.round(ms));
+  }, { survol: e => lecturePixel(e, lect) });
+  e.aller = p => { if (scene) scene.allerPage(p); else e.pageInit = p; };
+  const d0 = e.dessiner;
+  e.dessiner = (e2, now) => { d0(e2, now); if (e.pageInit !== undefined) { scene.allerPage(e.pageInit); e.pageInit = undefined; } if (e.surPage) e.surPage(scene.page()); };
+  e.sceneAuto = v => scene && scene.auto(v);
+  return e;
+}
+const heros = creerVitrine(document.getElementById("ecran-heros"), document.getElementById("lect-heros"), true);
+const pucesH = document.getElementById("puces-heros");
+NOMS_PAGES.forEach((n, i) => { const b = document.createElement("button"); b.type = "button"; b.className = "puce"; b.textContent = (i + 1) + " " + n; b.setAttribute("aria-pressed", i === 0); b.onclick = () => heros.aller(i); pucesH.appendChild(b); });
+let pageH = -1;
+heros.surPage = p => { if (p !== pageH) { pageH = p; [...pucesH.children].forEach((b, i) => b.setAttribute("aria-pressed", i === p)); } };
+
+const VIT_TXT = [
+  ["page_primitives", "Une case animée par primitive : chaque appel montre l'effet d'un paramètre qui varie avec <code>pulse()</code> ou le temps.", ["rect", "degrade_v/h", "rect_arrondi_degrade", "contour_arrondi", "disque", "anneau", "triangle", "trait", "trait_pointille", "arc", "halo", "pixel", "texte"]],
+  ["page_alpha", "À gauche, trois disques à <code>a = 150</code> se mélangent : le dernier dessiné est devant. À droite, trois halos additifs rouge, vert et bleu s'additionnent jusqu'au blanc. En bas, la même couleur de 32 à 255 d'opacité.", ["disque(…, a)", "halo", "rect_arrondi(…, a)"]],
+  ["page_easing", "Six façons d'aller de A à B en 1,6 s. Les quatre premières appliquent une formule à l'âge du mouvement ; le ressort et <code>approche()</code> suivent une cible. Chaque bille garde ses 8 dernières positions pour la traînée.", ["sortie", "lisse", "rebond", "ressort", "approche", "disque", "halo"]],
+  ["page_arcs", "Un arc qui tourne et respire (chargement), un anneau de progression avec pourcentage, un cadran dont l'aiguille est un ressort amorti, et des barres qui rejoignent leur cible avec <code>approche()</code>.", ["arc", "anneau", "trait", "texte", "rect_arrondi_degrade"]],
+  ["page_texte", "Les six polices, les accents et symboles, un titre qui glisse en fondu, une machine à écrire qui compte les caractères UTF-8 entiers et un compteur qui roule vers sa valeur.", ["texte", "largeur (valeur renvoyée)", "approche"]],
+  ["page_courbes", "Oscilloscope : signal + écho tracés en polyligne de petits <code>trait</code>, grille et seuil pointillé, le tout limité au panneau par <code>decoupe()</code>. Histogramme animé et droite de régression qui se trace.", ["decoupe", "trait", "trait_pointille", "rect", "melange"]],
+  ["page_particules", "Une fontaine de particules soumises à la gravité, une comète avec traînée, et une explosion de 50 particules à chaque toucher. Les particules mortes sont retirées en remplaçant par la dernière du tableau.", ["halo", "disque", "decoupe"]],
+  ["page_tactile", "Un curseur qu'on peut lancer (vitesse lissée puis frottement), un bouton qui s'enfonce et agit au lâcher, un interrupteur dont la couleur se fond, et des ondes là où l'on touche.", ["toucher()", "approche", "melange", "anneau"]],
+  ["page_decoupe", "Bandeau défilant coupé au panneau, barre de progression faite d'un dégradé découpé à la bonne longueur, titre révélé derrière une ligne lumineuse, et voile semi-transparent qui va et vient.", ["decoupe", "sans_decoupe", "largeur_texte", "rect(…, alpha)"]],
+];
+const vit = creerVitrine(document.getElementById("ecran-vit"), document.getElementById("lect-vit"), false);
+const vitOng = document.getElementById("vit-onglets");
+function montrerPage(i) {
+  [...vitOng.children].forEach((b, k) => { b.setAttribute("aria-pressed", k === i); b.setAttribute("aria-selected", k === i); });
+  const [fn, txt, outils] = VIT_TXT[i];
+  document.getElementById("vit-texte").innerHTML = `<h3 style="margin-top:0">${i + 1} · ${NOMS_PAGES[i]}</h3><p>${txt}</p><h4>Fonctions utilisées</h4><p>${outils.map(o => `<code>${o}</code>`).join(" ")}</p>`;
+  poserCode(document.getElementById("vit-code"), SRC[fn]);
+  vit.aller(i);
+}
+NOMS_PAGES.forEach((n, i) => { const b = document.createElement("button"); b.type = "button"; b.className = "puce"; b.setAttribute("role", "tab"); b.textContent = (i + 1) + " " + n; b.onclick = () => montrerPage(i); vitOng.appendChild(b); });
+let pageV = -1;
+vit.surPage = p => { if (p !== pageV) { pageV = p; if ([...vitOng.children][p].getAttribute("aria-pressed") !== "true") montrerPage(p); } };
+montrerPage(0);
+
+// ======================================================================
+//  RGB565
+// ======================================================================
+function majC565() {
+  const r = +document.getElementById("c565-r").value, g = +document.getElementById("c565-g").value, b = +document.getElementById("c565-b").value;
+  document.getElementById("o-r").textContent = r; document.getElementById("o-g").textContent = g; document.getElementById("o-b").textContent = b;
+  const c = rgb(r, g, b), [r2, g2, b2] = couleur565(c);
+  document.getElementById("c565-avant").style.background = `rgb(${r},${g},${b})`;
+  document.getElementById("c565-apres").style.background = `rgb(${r2},${g2},${b2})`;
+  const bits = c.toString(2).padStart(16, "0");
+  document.getElementById("c565-bits").innerHTML =
+    `<span style="color:#E5484D">${bits.slice(0, 5)}</span> <span style="color:var(--ok)">${bits.slice(5, 11)}</span> <span style="color:#3E7BFA">${bits.slice(11)}</span> = ${hex565(c)}<br><span style="color:var(--ink2)">r ${r} → ${r >> 3}/31 · g ${g} → ${g >> 2}/63 · b ${b} → ${b >> 3}/31</span>`;
+  poserCode(document.getElementById("c565-code"), `const uint16_t MA_COULEUR = gfx::rgb(${r}, ${g}, ${b});   // ${hex565(c)}\n\n// à mi-chemin entre deux couleurs :\nuint16_t c = gfx::melange(MA_COULEUR, gfx::rgb(0, 0, 0), 128);`);
+}
+["c565-r", "c565-g", "c565-b"].forEach(id => document.getElementById(id).addEventListener("input", majC565));
+majC565();
+
+// ======================================================================
+//  Étapes du tutoriel
+// ======================================================================
+function fondEcran(g) { g.degrade_v(0, 0, g.L, g.H, FOND_HAUT, FOND_BAS); }
+const CODE_E6 = `const uint16_t PANNEAU = gfx::rgb(16, 22, 52);
+const uint16_t TEXTE   = gfx::rgb(236, 242, 255);
+const uint16_t CYAN    = gfx::rgb(40, 228, 255);
+
+gfx::degrade_v(0, 0, 320, 240, gfx::rgb(4, 6, 18), gfx::rgb(16, 12, 42));
+gfx::rect_arrondi(20, 20, 280, 92, 12, PANNEAU, 150);
+gfx::contour_arrondi(20, 20, 280, 92, 12, 1, gfx::rgb(52, 66, 130), 110);
+gfx::texte(160, 36, "Bonjour ES3C28P", POLICE_22, TEXTE, 255, gfx::CENTRE);
+gfx::texte(160, 72, "premier dessin avec gfx", POLICE_13, CYAN, 255, gfx::CENTRE);
+gfx::halo(160, 170, 44, CYAN, 170);
+gfx::disque(160, 170, 9, TEXTE);
+
+tft.pushImage(0, 0, 320, 240, tampon);   // l'image part vers l'écran`;
+poserCode(document.getElementById("code-e6"), CODE_E6);
+creerEcran(document.getElementById("ecran-e6"), e => {
+  const g = e.g; fondEcran(g);
+  g.rect_arrondi(20, 20, 280, 92, 12, PANNEAU, 150); g.contour_arrondi(20, 20, 280, 92, 12, 1, rgb(52, 66, 130), 110);
+  g.texte(160, 36, "Bonjour ES3C28P", P.POLICE_22, C.TEXTE, 255, 1);
+  g.texte(160, 72, "premier dessin avec gfx", P.POLICE_13, C.CYAN, 255, 1);
+  g.halo(160, 170, 44, C.CYAN, 170); g.disque(160, 170, 9, C.TEXTE);
+}, { anime: false });
+
+poserCode(document.getElementById("code-e7"), `static float t = 0, dt = 0.033f;
+static uint32_t ms_prec = 0;
+
+void loop() {
+    uint32_t ms = millis();
+    if (ms_prec == 0) ms_prec = ms;
+    dt = (ms - ms_prec) / 1000.0f;          // secondes depuis l'image précédente
+    if (dt > 0.1f) dt = 0.1f;               // pas de saut après une pause
+    ms_prec = ms;
+    t += dt;
+
+    gfx::copier(fond);                      // fond pré-calculé (étape 8)
+    float x = 160 + 120 * sinf(t * 1.5f);   // position = fonction du temps
+    gfx::halo(x, 120, 26, CYAN, 160);
+    gfx::disque(x, 120, 6, TEXTE);
+    tft.pushImage(0, 0, 320, 240, tampon);
+}`);
+{
+  let acc = 0, dern = 0, t = 0, ms_prec = 0, ms = 0, dtv = 0.033, ipsMes = 30, compte = 0, tIps = 0;
+  const sl = document.getElementById("ips-e7"), out = document.getElementById("o-ips-e7");
+  sl.addEventListener("input", () => (out.textContent = sl.value));
+  creerEcran(document.getElementById("ecran-e7"), (e, now) => {
+    const pas = dern ? Math.min(100, now - dern) : 16; dern = now; acc += pas;
+    const periode = 1000 / +sl.value;
+    if (acc < periode) return;                // pas encore l'heure de la prochaine image
+    ms += acc; acc = 0;
+    if (!ms_prec) ms_prec = ms;
+    dtv = Math.min(0.1, (ms - ms_prec) / 1000); ms_prec = ms; t += dtv;
+    const g = e.g; fondEcran(g);
+    for (let i = 0; i <= 8; i++) g.trait(40 + i * 30, 160, 40 + i * 30, 166, 1, GRILLE);
+    g.trait(40, 163, 280, 163, 1, GRILLE);
+    const x = 160 + 120 * Math.sin(t * 1.5);
+    g.halo(x, 120, 26, C.CYAN, 160); g.disque(x, 120, 6, C.TEXTE);
+    g.texte(160, 24, "t = " + t.toFixed(2).replace(".", ",") + " s", P.POLICE_16, C.TEXTE, 255, 1);
+    g.texte(160, 196, "dt = " + Math.round(dtv * 1000) + " ms", P.POLICE_13, C.JAUNE, 255, 1);
+  });
+}
+
+// --- étape 9 : chronogramme ---
+poserCode(document.getElementById("code-e9"), SRC.tache_ecran + "\n\n" + SRC.loop);
+{
+  const cv = document.getElementById("db-canvas"), ctx = cv.getContext("2d");
+  const ids = ["db-spi", "db-des", "db-mode"];
+  function dessinerDb() {
+    const spi = +document.getElementById("db-spi").value, des = +document.getElementById("db-des").value, mode = +document.getElementById("db-mode").value;
+    document.getElementById("o-db-spi").textContent = spi; document.getElementById("o-db-des").textContent = des;
+    const env = 153600 * 8 / (spi * 1e6) * 1000 * 1.0;     // ms
+    const st = getComputedStyle(document.documentElement);
+    const ink = st.getPropertyValue("--ink").trim(), ink2 = st.getPropertyValue("--ink2").trim(), line = st.getPropertyValue("--line").trim();
+    const cDes = st.getPropertyValue("--accent").trim(), cEnv = st.getPropertyValue("--amber").trim();
+    const W = cv.width, Hc = cv.height, x0 = 120, durée = 200, sx = (W - x0 - 10) / durée;
+    ctx.clearRect(0, 0, W, Hc);
+    ctx.font = "600 22px 'IBM Plex Sans', sans-serif"; ctx.fillStyle = ink;
+    ctx.fillText("Cœur 1", 10, 62); ctx.fillText("Cœur 0", 10, 132);
+    ctx.font = "16px 'IBM Plex Sans', sans-serif"; ctx.fillStyle = ink2;
+    ctx.fillText("dessin", 10, 82); ctx.fillText("envoi SPI", 10, 152);
+    ctx.strokeStyle = line; ctx.lineWidth = 1;
+    for (let ms = 0; ms <= durée; ms += 20) { const x = x0 + ms * sx; ctx.beginPath(); ctx.moveTo(x, 30); ctx.lineTo(x, 172); ctx.stroke(); ctx.fillStyle = ink2; ctx.fillText(ms + " ms", x - 16, 198); }
+    const bloc = (x, y, w, c, n) => { ctx.fillStyle = c; ctx.globalAlpha = .9; ctx.fillRect(x0 + x * sx, y, Math.max(1, w * sx - 2), 44); ctx.globalAlpha = 1;
+      ctx.fillStyle = "#061020"; ctx.font = "600 15px 'JetBrains Mono', monospace"; if (w * sx > 30) ctx.fillText(n, x0 + x * sx + 6, y + 28); };
+    let t = 0, n = 0, envFin = 0, images = 0;
+    if (mode === 1) {
+      while (t < durée) { bloc(t, 40, des, cDes, "n" + n); bloc(t + des, 110, env, cEnv, "n" + n); t += des + env; n++; }
+      images = 1000 / (des + env);
+    } else {
+      let tDes = 0;
+      while (tDes < durée) {
+        bloc(tDes, 40, des, cDes, "n" + n);
+        const debEnv = Math.max(tDes + des, envFin);
+        bloc(debEnv, 110, env, cEnv, "n" + n);
+        envFin = debEnv + env;
+        tDes = Math.max(tDes + des, envFin - env);   // le tampon suivant est libre quand l'envoi n-1 est fini
+        n++;
+      }
+      images = 1000 / Math.max(des, env);
+    }
+    document.getElementById("db-res").innerHTML = `Envoi d'une image : ${env.toFixed(1).replace(".", ",")} ms · ${mode === 2 ? "deux tampons" : "un tampon"} : <span style="color:var(--ok)">${images.toFixed(1).replace(".", ",")} images/s</span>`;
+  }
+  ids.forEach(id => document.getElementById(id).addEventListener("input", dessinerDb));
+  dessinerDb();
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", dessinerDb);
+  new MutationObserver(dessinerDb).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  document.fonts && document.fonts.ready.then(dessinerDb);
+}
+
+// --- étape 11 : gestes ---
+poserCode(document.getElementById("code-e11"), SRC.toucher);
+poserCode(document.getElementById("code-e12"), SRC.image);
+{
+  let prec = false, x0 = 0, y0 = 0, t0 = 0, bouge = false, geste = "", gesteT = -9, trace = [], ondes = [];
+  const lect = document.getElementById("lect-e11");
+  creerEcran(document.getElementById("ecran-e11"), (e, now) => {
+    const g = e.g, t = now / 1000; fondEcran(g);
+    if (e.appui && !prec) { x0 = e.x; y0 = e.y; t0 = t; bouge = false; trace = [[e.x, e.y]]; }
+    else if (e.appui && prec) { if (Math.abs(e.x - x0) > 6 || Math.abs(e.y - y0) > 6) bouge = true; trace.push([e.x, e.y]); if (trace.length > 60) trace.shift(); }
+    else if (!e.appui && prec) {
+      if (!bouge && t - t0 < 0.8) { geste = "TAP"; ondes.push([x0, y0, t]); }
+      else if (bouge && Math.abs(e.x - x0) > 60 && Math.abs(e.y - y0) < 50) geste = e.x < x0 ? "BALAYAGE ←" : "BALAYAGE →";
+      else if (bouge) geste = "GLISSER";
+      else geste = "APPUI LONG";
+      gesteT = t;
+    }
+    prec = e.appui;
+    for (let i = 1; i < trace.length; i++) g.trait(trace[i - 1][0], trace[i - 1][1], trace[i][0], trace[i][1], 3, C.VIOLET, 60 + 160 * i / trace.length);
+    ondes = ondes.filter(o => t - o[2] < 0.8);
+    for (const o of ondes) { const a = (t - o[2]) / 0.8; g.anneau(o[0], o[1], 4 + 36 * (1 - (1 - a) ** 3), 2, C.CYAN, 220 * (1 - a)); }
+    if (e.appui) { g.halo(e.x, e.y, 22, C.TEXTE, 90); g.disque(e.x, e.y, 4, C.TEXTE); if (bouge) g.trait(x0, y0, e.x, e.y, 1, C.JAUNE, 160); }
+    g.texte(10, 8, e.appui ? (bouge ? "Pose · glisse" : "Pose") : "Leve", P.POLICE_16, e.appui ? C.VERT : C.TEXTE2);
+    g.texte(310, 10, `appui = ${e.appui ? "true" : "false"}`, P.POLICE_13, C.TEXTE2, 255, 2);
+    if (t - gesteT < 1.5) g.texte(160, 196, geste, P.POLICE_22, C.JAUNE, 255 * Math.min(1, (1.5 - (t - gesteT)) * 2), 1);
+    lect.innerHTML = `appui <b>${e.appui}</b> · x <b>${e.x}</b> · y <b>${e.y}</b>${geste ? " · dernier geste <b>" + geste + "</b>" : ""}`;
+  });
+}
+
+// --- progression des étapes ---
+{
+  const etapes = [...document.querySelectorAll(".etape")];
+  let fait = [];
+  try { fait = JSON.parse(localStorage.getItem("atelier-gfx-etapes") || "[]"); } catch (e) {}
+  function maj() {
+    etapes.forEach(el => { const ok = fait.includes(el.id); el.classList.toggle("fait", ok); el.querySelector(".fait-btn").textContent = ok ? "Fait ✓" : "Marquer comme fait"; });
+    document.getElementById("prog-txt").textContent = `${fait.length} / ${etapes.length} étapes`;
+    document.getElementById("prog-barre").style.width = (100 * fait.length / etapes.length) + "%";
+  }
+  etapes.forEach(el => el.querySelector(".fait-btn").addEventListener("click", () => {
+    fait = fait.includes(el.id) ? fait.filter(x => x !== el.id) : [...fait, el.id];
+    try { localStorage.setItem("atelier-gfx-etapes", JSON.stringify(fait)); } catch (e) {}
+    maj();
+  }));
+  maj();
+}
+
+// ======================================================================
+//  Fiches API
+// ======================================================================
+const rad = d => d * Math.PI / 180;
+const FICHES = [
+  { id: "rect", groupe: "Rectangles", sig: "void rect(int x, int y, int l, int h, uint16_t c, uint8_t a = 255)",
+    desc: "Rectangle plein. Le plus rapide : aucun calcul par pixel quand il est opaque. Semi-transparent, il sert de voile ou de fondu.",
+    params: [["x", 0, 320, 1, 70], ["y", 0, 140, 1, 30], ["l", 0, 320, 1, 120], ["h", 0, 140, 1, 70], ["a", 0, 255, 1, 160]], coul: ["MAGENTA"],
+    dessin: (g, p, c) => { g.rect(40, 20, 90, 60, C.CYAN); g.rect(p.x, p.y, p.l, p.h, c[0], p.a); },
+    code: (p, c) => `gfx::rect(40, 20, 90, 60, CYAN);                    // dessous, opaque\ngfx::rect(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${c[0]}, ${p.a});` },
+  { id: "degrade_v", groupe: "Rectangles", sig: "void degrade_v(int x, int y, int l, int h, uint16_t c0, uint16_t c1, uint8_t a = 255)\nvoid degrade_h(int x, int y, int l, int h, uint16_t c0, uint16_t c1, uint8_t a = 255)",
+    desc: "Dégradé vertical (c0 en haut) ou horizontal (c0 à gauche). Le fond de toute l'interface est un degrade_v.",
+    params: [["x", 0, 320, 1, 30], ["y", 0, 140, 1, 20], ["l", 1, 320, 1, 260], ["h", 1, 140, 1, 100], ["horizontal", 0, 1, 1, 0]], coul: ["JAUNE", "ROUGE"],
+    dessin: (g, p, c) => (p.horizontal ? g.degrade_h : g.degrade_v).call(g, p.x, p.y, p.l, p.h, c[0], c[1]),
+    code: (p, c) => `gfx::${p.horizontal ? "degrade_h" : "degrade_v"}(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${c[0]}, ${c[1]});` },
+  { id: "rect_arrondi", groupe: "Rectangles", sig: "void rect_arrondi(int x, int y, int l, int h, int r, uint16_t c, uint8_t a = 255)\nvoid rect_arrondi_degrade(int x, int y, int l, int h, int r, uint16_t c0, uint16_t c1, uint8_t a = 255)",
+    desc: "Rectangle aux coins arrondis de rayon r, bords lissés (distance signée au bord). La version dégradée colore de c0 en haut à c1 en bas : c'est le bouton MESURER.",
+    params: [["x", 0, 320, 1, 60], ["y", 0, 140, 1, 30], ["l", 1, 320, 1, 200], ["h", 1, 140, 1, 70], ["r", 0, 40, 1, 14], ["degrade", 0, 1, 1, 1]], coul: ["CYAN", "VIOLET"],
+    dessin: (g, p, c) => p.degrade ? g.rect_arrondi_degrade(p.x, p.y, p.l, p.h, p.r, c[0], c[1]) : g.rect_arrondi(p.x, p.y, p.l, p.h, p.r, c[0]),
+    code: (p, c) => p.degrade ? `gfx::rect_arrondi_degrade(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${p.r}, ${c[0]}, ${c[1]});` : `gfx::rect_arrondi(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${p.r}, ${c[0]});` },
+  { id: "contour_arrondi", groupe: "Rectangles", sig: "void contour_arrondi(int x, int y, int l, int h, int r, float ep, uint16_t c, uint8_t a = 255)",
+    desc: "Seulement le bord d'un rectangle arrondi, d'épaisseur ep (décimale). Avec rect_arrondi semi-transparent dessous, on obtient le « panneau de verre » de l'interface.",
+    params: [["x", 0, 320, 1, 40], ["y", 0, 140, 1, 25], ["l", 1, 320, 1, 240], ["h", 1, 140, 1, 80], ["r", 0, 40, 1, 12], ["ep", 0.5, 8, 0.1, 1.2], ["a", 0, 255, 1, 200]], coul: ["CYAN"],
+    dessin: (g, p, c) => { g.rect_arrondi(p.x, p.y, p.l, p.h, p.r, PANNEAU, 150); g.contour_arrondi(p.x, p.y, p.l, p.h, p.r, p.ep, c[0], p.a); },
+    code: (p, c) => `gfx::rect_arrondi(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${p.r}, PANNEAU, 150);      // le verre\ngfx::contour_arrondi(${p.x}, ${p.y}, ${p.l}, ${p.h}, ${p.r}, ${ff(p.ep)}, ${c[0]}, ${p.a});  // le liseré` },
+  { id: "disque", groupe: "Formes lissées", sig: "void disque(float cx, float cy, float r, uint16_t c, uint8_t a = 255)",
+    desc: "Disque plein, bord lissé. Les coordonnées sont décimales : un disque à cx = 100,4 glisse sans à-coups.",
+    params: [["cx", 0, 320, 0.1, 160], ["cy", 0, 140, 0.1, 70], ["r", 0.5, 70, 0.1, 34], ["a", 0, 255, 1, 255]], coul: ["JAUNE"],
+    dessin: (g, p, c) => g.disque(p.cx, p.cy, p.r, c[0], p.a), code: (p, c) => `gfx::disque(${ff(p.cx)}, ${ff(p.cy)}, ${ff(p.r)}, ${c[0]}, ${p.a});` },
+  { id: "anneau", groupe: "Formes lissées", sig: "void anneau(float cx, float cy, float r, float ep, uint16_t c, uint8_t a = 255)",
+    desc: "Cercle d'épaisseur ep centré sur le rayon r. Avec un rayon qui grandit et une opacité qui baisse : une onde de choc.",
+    params: [["cx", 0, 320, 0.1, 160], ["cy", 0, 140, 0.1, 70], ["r", 1, 70, 0.1, 40], ["ep", 0.5, 20, 0.1, 6], ["a", 0, 255, 1, 255]], coul: ["VERT"],
+    dessin: (g, p, c) => g.anneau(p.cx, p.cy, p.r, p.ep, c[0], p.a), code: (p, c) => `gfx::anneau(${ff(p.cx)}, ${ff(p.cy)}, ${ff(p.r)}, ${ff(p.ep)}, ${c[0]}, ${p.a});` },
+  { id: "arc", groupe: "Formes lissées", sig: "void arc(float cx, float cy, float r, float ep, float ang0, float ang1, uint16_t c, uint8_t a = 255)",
+    desc: "Portion d'anneau de ang0 à ang1 (radians, ang1 > ang0, 0 = droite, sens horaire). Extrémités lissées. Jauges, chargement, progression. Gardez les angles proches de 0…2π.",
+    params: [["cx", 0, 320, 1, 160], ["cy", 0, 140, 1, 75], ["r", 4, 70, 1, 50], ["ep", 1, 20, 0.5, 8], ["ang0°", -180, 360, 1, 135], ["ang1°", -180, 720, 1, 405]], coul: ["CYAN"],
+    dessin: (g, p, c) => { g.anneau(p.cx, p.cy, p.r, p.ep, PANNEAU); g.arc(p.cx, p.cy, p.r, p.ep, rad(p["ang0°"]), rad(p["ang1°"]), c[0]); },
+    code: (p, c) => `// ${p["ang0°"]}° → ${p["ang1°"]}°\ngfx::anneau(${p.cx}, ${p.cy}, ${p.r}, ${ff(p.ep)}, PANNEAU);   // piste\ngfx::arc(${p.cx}, ${p.cy}, ${p.r}, ${ff(p.ep)}, ${ff(rad(p["ang0°"]))}, ${ff(rad(p["ang1°"]))}, ${c[0]});` },
+  { id: "trait", groupe: "Formes lissées", sig: "void trait(float x0, float y0, float x1, float y1, float ep, uint16_t c, uint8_t a = 255)",
+    desc: "Segment d'épaisseur ep, bouts arrondis, lissé à toutes les pentes. Enchaîner des petits traits trace n'importe quelle courbe (oscilloscope, onde Wi-Fi).",
+    params: [["x0", 0, 320, 0.1, 40], ["y0", 0, 140, 0.1, 110], ["x1", 0, 320, 0.1, 280], ["y1", 0, 140, 0.1, 30], ["ep", 0.5, 20, 0.1, 3]], coul: ["TEXTE"],
+    dessin: (g, p, c) => g.trait(p.x0, p.y0, p.x1, p.y1, p.ep, c[0]), code: (p, c) => `gfx::trait(${ff(p.x0)}, ${ff(p.y0)}, ${ff(p.x1)}, ${ff(p.y1)}, ${ff(p.ep)}, ${c[0]});` },
+  { id: "trait_pointille", groupe: "Formes lissées", sig: "void trait_pointille(float x0, float y0, float x1, float y1, float ep,\n                     float tiret, float trou, uint16_t c, uint8_t a = 255)",
+    desc: "Segment en tirets de longueur tiret séparés de trou pixels. Seuils, repères, lignes de construction.",
+    params: [["x0", 0, 320, 1, 20], ["y0", 0, 140, 1, 70], ["x1", 0, 320, 1, 300], ["y1", 0, 140, 1, 70], ["ep", 0.5, 8, 0.5, 2], ["tiret", 1, 30, 1, 8], ["trou", 1, 30, 1, 5]], coul: ["JAUNE"],
+    dessin: (g, p, c) => g.trait_pointille(p.x0, p.y0, p.x1, p.y1, p.ep, p.tiret, p.trou, c[0]),
+    code: (p, c) => `gfx::trait_pointille(${p.x0}, ${p.y0}, ${p.x1}, ${p.y1}, ${ff(p.ep)}, ${p.tiret}, ${p.trou}, ${c[0]});` },
+  { id: "triangle", groupe: "Formes lissées", sig: "void triangle(float x0, float y0, float x1, float y1, float x2, float y2, uint16_t c, uint8_t a = 255)",
+    desc: "Triangle plein, sommets dans n'importe quel ordre. Flèches de cotes, curseur de la règle, icônes.",
+    params: [["x0", 0, 320, 1, 100], ["y0", 0, 140, 1, 120], ["x1", 0, 320, 1, 160], ["y1", 0, 140, 1, 20], ["x2", 0, 320, 1, 230], ["y2", 0, 140, 1, 110]], coul: ["MAGENTA"],
+    dessin: (g, p, c) => g.triangle(p.x0, p.y0, p.x1, p.y1, p.x2, p.y2, c[0]), code: (p, c) => `gfx::triangle(${p.x0}, ${p.y0}, ${p.x1}, ${p.y1}, ${p.x2}, ${p.y2}, ${c[0]});` },
+  { id: "halo", groupe: "Lumière", sig: "void halo(float cx, float cy, float r, uint16_t c, uint8_t intensite)",
+    desc: "Tache de lumière additive : elle éclaircit toujours ce qui est dessous, et deux halos s'additionnent. Intensité décroissante en (1 − d²/r²)². L'effet signature de l'interface.",
+    params: [["cx", 0, 320, 0.1, 140], ["cy", 0, 140, 0.1, 70], ["r", 1, 120, 0.5, 50], ["intensite", 0, 255, 1, 180], ["second", 0, 1, 1, 1]], coul: ["ORANGE", "BLEU"],
+    dessin: (g, p, c) => { g.halo(p.cx, p.cy, p.r, c[0], p.intensite); if (p.second) g.halo(p.cx + 50, p.cy, p.r, c[1], p.intensite); g.disque(p.cx, p.cy, 3, C.TEXTE); },
+    code: (p, c) => `gfx::halo(${ff(p.cx)}, ${ff(p.cy)}, ${ff(p.r)}, ${c[0]}, ${p.intensite});\n${p.second ? `gfx::halo(${ff(p.cx + 50)}, ${ff(p.cy)}, ${ff(p.r)}, ${c[1]}, ${p.intensite});   // s'additionne\n` : ""}gfx::disque(${ff(p.cx)}, ${ff(p.cy)}, 3, TEXTE);    // le cœur de la lumière` },
+  { id: "pixel", groupe: "Lumière", sig: "void pixel(int x, int y, uint16_t c, uint8_t a = 255)\nvoid pixel_ajout(int x, int y, uint16_t c, uint8_t a)",
+    desc: "Un pixel mélangé (pixel) ou ajouté en lumière (pixel_ajout, qui sature au blanc). Étoiles qui scintillent, courbes point par point.",
+    params: [["nombre", 0, 400, 1, 160], ["a", 0, 255, 1, 200], ["ajout", 0, 1, 1, 1]], coul: ["TEXTE"], anime: true,
+    dessin: (g, p, c, t) => { let s = 7; const al = () => (s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+      for (let i = 0; i < p.nombre; i++) { const x = al() * 320 | 0, y = al() * 140 | 0, ph = al() * 6.28, a = p.a * (0.55 + 0.45 * Math.sin(t * 1.7 + ph)) | 0; p.ajout ? g.pixel_ajout(x, y, c[0], a) : g.pixel(x, y, c[0], a); } },
+    code: (p, c) => `for (int i = 0; i < ${p.nombre}; i++) {\n    float a = ${p.a} * (0.55f + 0.45f * sinf(t * 1.7f + etoile[i].ph));   // scintille\n    gfx::${p.ajout ? "pixel_ajout" : "pixel"}(etoile[i].x, etoile[i].y, ${c[0]}, (uint8_t)a);\n}` },
+  { id: "decoupe", groupe: "Découpe", sig: "void decoupe(int x0, int y0, int x1, int y1)   // x1, y1 exclus\nvoid sans_decoupe()",
+    desc: "Tout dessin hors du rectangle est ignoré, y compris le texte. Barres de progression, bandeaux défilants, révélations. Toujours finir par sans_decoupe().",
+    params: [["x0", 0, 320, 1, 40], ["y0", 0, 140, 1, 20], ["x1", 0, 320, 1, 210], ["y1", 0, 140, 1, 120]], coul: ["CYAN", "VIOLET"], anime: true,
+    dessin: (g, p, c, t) => {
+      g.trait_pointille(p.x0, p.y0, p.x1, p.y0, 1, 4, 3, C.JAUNE); g.trait_pointille(p.x0, p.y1, p.x1, p.y1, 1, 4, 3, C.JAUNE);
+      g.trait_pointille(p.x0, p.y0, p.x0, p.y1, 1, 4, 3, C.JAUNE); g.trait_pointille(p.x1, p.y0, p.x1, p.y1, 1, 4, 3, C.JAUNE);
+      g.decoupe(p.x0, p.y0, p.x1, p.y1);
+      g.rect_arrondi_degrade(20, 30, 280, 80, 20, c[0], c[1]);
+      g.texte(160 + 60 * Math.sin(t), 54, "DÉCOUPE", P.POLICE_30, C.TEXTE, 255, 1);
+      g.sans_decoupe();
+    },
+    code: (p, c) => `gfx::decoupe(${p.x0}, ${p.y0}, ${p.x1}, ${p.y1});\ngfx::rect_arrondi_degrade(20, 30, 280, 80, 20, ${c[0]}, ${c[1]});\ngfx::texte(x, 54, "DÉCOUPE", POLICE_30, TEXTE, 255, gfx::CENTRE);\ngfx::sans_decoupe();` },
+  { id: "texte", groupe: "Texte", sig: "int texte(int x, int y, const char *s, const PoliceAA &p, uint16_t c,\n          uint8_t a = 255, int align = GAUCHE)\nint largeur_texte(const char *s, const PoliceAA &p)",
+    desc: "Écrit une chaîne UTF-8 (accents directement dans le source). y est le HAUT de la ligne ; align GAUCHE, CENTRE ou DROITE par rapport à x. Renvoie la largeur, ce qui permet d'enchaîner deux styles. Voir aussi la section Polices.",
+    params: [["x", 0, 320, 1, 160], ["y", 0, 120, 1, 50], ["align", 0, 2, 1, 1], ["a", 0, 255, 1, 255]], coul: ["TEXTE", "CYAN"],
+    dessin: (g, p, c) => { g.trait(p.x, 0, p.x, 140, 1, C.JAUNE, 120); g.trait(0, p.y, 320, p.y, 1, C.JAUNE, 120);
+      const l = g.largeur_texte("Temps de vol ", P.POLICE_13) + g.largeur_texte("6,7 ns", P.POLICE_16);
+      let x = p.x - (p.align === 1 ? l >> 1 : p.align === 2 ? l : 0);
+      const l1 = g.texte(x, p.y + 3, "Temps de vol ", P.POLICE_13, c[0], p.a); g.texte(x + l1, p.y, "6,7 ns", P.POLICE_16, c[1], p.a); },
+    code: (p, c) => `// largeur totale, pour aligner l'ensemble\nint l = gfx::largeur_texte("Temps de vol ", POLICE_13)\n      + gfx::largeur_texte("6,7 ns", POLICE_16);\nint x = ${p.x}${p.align === 1 ? " - l / 2" : p.align === 2 ? " - l" : ""};\nint l1 = gfx::texte(x, ${p.y + 3}, "Temps de vol ", POLICE_13, ${c[0]}, ${p.a});\ngfx::texte(x + l1, ${p.y}, "6,7 ns", POLICE_16, ${c[1]}, ${p.a});    // enchaîné` },
+  { id: "melange", groupe: "Couleurs", sig: "constexpr uint16_t rgb(uint8_t r, uint8_t g, uint8_t b)\nuint16_t melange(uint16_t c0, uint16_t c1, uint8_t t)   // t = 0 → c0, 255 → c1",
+    desc: "rgb() fabrique une couleur RGB565 à la compilation. melange() interpole entre deux couleurs : barres colorées selon leur hauteur, interrupteur qui vire au vert.",
+    params: [["t", 0, 255, 1, 128]], coul: ["VIOLET", "CYAN"],
+    dessin: (g, p, c) => { for (let i = 0; i < 16; i++) { const tt = Math.round(i * 255 / 15); g.rect_arrondi(10 + i * 19, 20, 16, 50, 4, Gfx.melange(c[0], c[1], tt)); }
+      g.rect_arrondi(110, 84, 100, 44, 10, Gfx.melange(c[0], c[1], p.t)); g.texte(160, 96, "t = " + p.t, P.POLICE_16, rgb(6, 10, 30), 255, 1); },
+    code: (p, c) => `uint16_t c = gfx::melange(${c[0]}, ${c[1]}, ${p.t});\n\n// dégradé de 16 cases :\nfor (int i = 0; i < 16; i++)\n    gfx::rect_arrondi(10 + i * 19, 20, 16, 50, 4, gfx::melange(${c[0]}, ${c[1]}, i * 255 / 15));` },
+];
+{
+  const conteneur = document.getElementById("fiches"), groupes = [...new Set(FICHES.map(f => f.groupe))];
+  let groupeActif = null;
+  const filtre = document.getElementById("api-filtre"), bG = document.getElementById("api-groupes");
+  ["Toutes", ...groupes].forEach((gname, i) => { const b = document.createElement("button"); b.type = "button"; b.className = "puce"; b.textContent = gname; b.setAttribute("aria-pressed", i === 0);
+    b.onclick = () => { groupeActif = i === 0 ? null : gname; [...bG.children].forEach(k => k.setAttribute("aria-pressed", k === b)); appliquer(); }; bG.appendChild(b); });
+  function appliquer() { const q = filtre.value.trim().toLowerCase();
+    conteneur.querySelectorAll(".fiche").forEach(el => { el.hidden = !((!groupeActif || el.dataset.groupe === groupeActif) && (!q || el.dataset.cles.includes(q))); }); }
+  filtre.addEventListener("input", appliquer);
+  for (const F of FICHES) {
+    const el = document.createElement("article"); el.className = "fiche"; el.id = "f-" + F.id; el.dataset.groupe = F.groupe; el.dataset.cles = (F.id + " " + F.sig + " " + F.desc).toLowerCase();
+    const p = Object.fromEntries(F.params.map(([n, , , , v]) => [n, v])), coul = [...F.coul];
+    el.innerHTML = `<div class="fiche-tete"><span class="groupe">${F.groupe}</span><h3>gfx::${F.id}</h3><div class="sig">${echapper(F.sig)}</div><p style="margin:8px 0 0">${F.desc}</p></div>
+      <div class="fiche-corps"><div><div class="appareil mini"><canvas width="320" height="140" aria-label="Aperçu de ${F.id}"></canvas></div></div>
+      <div><div class="reglages"></div><div class="code" data-etq="C++"><pre></pre></div></div></div>`;
+    conteneur.appendChild(el);
+    const reg = el.querySelector(".reglages"), pre = el.querySelector("pre");
+    let ecran;
+    const maj = () => { poserCode(pre, F.code(p, coul)); if (ecran) ecran.sale = true; };
+    F.params.forEach(([n, mi, ma, pas, v]) => {
+      const id = `p-${F.id}-${n.replace(/\W/g, "")}`, d = document.createElement("div"); d.className = "reglage";
+      d.innerHTML = `<label for="${id}">${n} <output>${v}</output></label><input id="${id}" type="range" min="${mi}" max="${ma}" step="${pas}" value="${v}">`;
+      const inp = d.querySelector("input"), o = d.querySelector("output");
+      inp.addEventListener("input", () => { p[n] = +inp.value; o.textContent = pas < 1 ? (+inp.value).toFixed(1) : inp.value; maj(); });
+      reg.appendChild(d);
+    });
+    coul.forEach((nom, k) => {
+      const id = `c-${F.id}-${k}`, d = document.createElement("div"); d.className = "reglage";
+      d.innerHTML = `<label for="${id}">couleur ${coul.length > 1 ? (k === 0 ? "c0" : "c1") : "c"}</label><select id="${id}">${Object.keys(PAL).map(x => `<option${x === nom ? " selected" : ""}>${x}</option>`).join("")}</select>`;
+      d.querySelector("select").addEventListener("change", ev => { coul[k] = ev.target.value; maj(); });
+      reg.appendChild(d);
+    });
+    ecran = creerEcran(el.querySelector("canvas"), (e, now) => {
+      const g = e.g; fondEcran(g);
+      for (let x = 20; x < 320; x += 20) g.rect(x, 0, 1, 140, GRILLE, x % 100 === 0 ? 150 : 60);
+      for (let y = 20; y < 140; y += 20) g.rect(0, y, 320, 1, GRILLE, y % 100 === 0 ? 150 : 60);
+      F.dessin(g, p, coul.map(n => C[n]), now / 1000);
+    }, { anime: !!F.anime });
+    maj();
+    equiperCode(el.querySelector(".code"));
+  }
+}
+poserCode(document.getElementById("code-gfxh"), SRC.gfx_h);
+
+// ======================================================================
+//  Laboratoire d'animation
+// ======================================================================
+const sortie = x => { x = Math.min(1, Math.max(0, x)); return 1 - (1 - x) ** 3; };
+const lisse = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const rebond = x => { x = Math.min(1, Math.max(0, x)); const n = 7.5625, d = 2.75;
+  if (x < 1 / d) return n * x * x; if (x < 2 / d) { x -= 1.5 / d; return n * x * x + .75; } if (x < 2.5 / d) { x -= 2.25 / d; return n * x * x + .9375; } x -= 2.625 / d; return n * x * x + .984375; };
+const COURBES = [["linéaire", x => x, "#8C98BC"], ["sortie()", sortie, "#28E4FF"], ["lisse()", lisse, "#3CFF9C"], ["rebond()", rebond, "#FFD440"],
+  ["pulse(1)", x => 0.5 + 0.5 * Math.sin(x * 2 * Math.PI), "#FF40C8"]];
+const visibles = COURBES.map(() => true);
+{
+  const leg = document.getElementById("ease-legende");
+  COURBES.forEach(([n, , col], i) => { const l = document.createElement("label"); l.innerHTML = `<input type="checkbox" checked id="ec-${i}"><i style="background:${col}"></i>${n}`; l.querySelector("input").onchange = ev => (visibles[i] = ev.target.checked); leg.appendChild(l); });
+  poserCode(document.getElementById("code-ease"), `static inline float sat01(float v) { return v < 0 ? 0 : (v > 1 ? 1 : v); }
+
+// démarre vite, freine à l'arrivée
+static inline float sortie(float x) { x = sat01(x); return 1 - (1-x)*(1-x)*(1-x); }
+
+// départ et arrivée en douceur (smoothstep)
+static inline float lisse(float x) { x = sat01(x); return x * x * (3 - 2 * x); }
+
+// oscillation 0..1 à f Hz
+static inline float pulse(float f, float ph = 0) {
+    return 0.5f + 0.5f * sinf(t * f * 2 * PI + ph);
+}
+
+// utilisation : un titre qui glisse et apparaît en 0,6 s
+float e = sortie((t - t0) / 0.6f);
+gfx::texte(14 + (int)(60 * (1 - e)), 30, "TITRE", POLICE_30, TEXTE, (uint8_t)(255 * e));`);
+  const cv = document.getElementById("ease-canvas"), ctx = cv.getContext("2d");
+  const ecr = { canvas: cv, visible: false, anime: true, sale: true, dessiner: (e, now) => {
+    const st = getComputedStyle(document.documentElement), ink2 = st.getPropertyValue("--ink2").trim(), line = st.getPropertyValue("--line").trim();
+    const W = cv.width, Hc = cv.height, m = 40, w = W - 2 * m, h = Hc - 2 * m - 20, oy = m + h * 0.15, hh = h * 0.7;
+    ctx.clearRect(0, 0, W, Hc);
+    ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.font = "14px 'JetBrains Mono', monospace"; ctx.fillStyle = ink2;
+    for (let i = 0; i <= 4; i++) { const x = m + w * i / 4; ctx.beginPath(); ctx.moveTo(x, m); ctx.lineTo(x, m + h); ctx.stroke(); ctx.fillText((i / 4).toFixed(2), x - 14, m + h + 18); }
+    [0, 1].forEach(v => { const y = oy + hh * (1 - v); ctx.beginPath(); ctx.moveTo(m, y); ctx.lineTo(m + w, y); ctx.stroke(); ctx.fillText(String(v), 12, y + 5); });
+    ctx.fillText("x = âge / durée", m + w - 120, Hc - 6);
+    const u = reduit ? 0.6 : ((now / 1000) % 2.2) / 1.6;
+    COURBES.forEach(([, f, col], i) => { if (!visibles[i]) return;
+      ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath();
+      for (let k = 0; k <= 200; k++) { const x = k / 200, y = oy + hh * (1 - f(x)); k ? ctx.lineTo(m + w * x, y) : ctx.moveTo(m + w * x, y); } ctx.stroke();
+      const x = Math.min(1, u), y = oy + hh * (1 - f(x)); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(m + w * x, y, 7, 0, 7); ctx.fill(); });
+    ctx.strokeStyle = ink2; ctx.setLineDash([4, 4]); ctx.beginPath(); ctx.moveTo(m + w * Math.min(1, u), m); ctx.lineTo(m + w * Math.min(1, u), m + h); ctx.stroke(); ctx.setLineDash([]);
+  }, peindre: () => {} };
+  ecrans.push(ecr);
+}
+{
+  const cv = document.getElementById("ressort-canvas"), ctx = cv.getContext("2d");
+  const ids = { k: "k-app", r: "k-res", a: "a-res" };
+  const val = () => ({ k: +document.getElementById(ids.k).value, r: +document.getElementById(ids.r).value, a: +document.getElementById(ids.a).value });
+  function code() { const v = val();
+    document.getElementById("o-k-app").textContent = v.k; document.getElementById("o-k-res").textContent = v.r; document.getElementById("o-a-res").textContent = v.a;
+    poserCode(document.getElementById("code-ressort"), `// rejoint la cible sans la dépasser ; k = raideur en 1/s
+static inline float approche(float v, float cible, float k) {
+    return v + (cible - v) * (1.0f - expf(-k * dt));
+}
+aff = approche(aff, cible, ${ff(v.k)});
+
+// ressort amorti : dépasse puis revient
+static float x = 0, v = 0;
+v += (cible - x) * ${ff(v.r)} * dt;     // force de rappel
+v *= expf(-${ff(v.a)} * dt);            // frottement
+x += v * dt;`); }
+  Object.values(ids).forEach(id => document.getElementById(id).addEventListener("input", code)); code();
+  ecrans.push({ canvas: cv, visible: false, anime: true, sale: true, peindre: () => {}, dessiner: (e, now) => {
+    const v = val(), st = getComputedStyle(document.documentElement), ink2 = st.getPropertyValue("--ink2").trim(), line = st.getPropertyValue("--line").trim();
+    const W = cv.width, Hc = cv.height, m = 36, w = W - 2 * m, h = Hc - 2 * m, dt = 1 / 30, N = 120;
+    const yv = y => m + h * (0.85 - 0.6 * y);
+    ctx.clearRect(0, 0, W, Hc); ctx.strokeStyle = line; ctx.fillStyle = ink2; ctx.font = "13px 'JetBrains Mono', monospace";
+    [0, 1].forEach(k => { ctx.beginPath(); ctx.moveTo(m, yv(k)); ctx.lineTo(m + w, yv(k)); ctx.stroke(); ctx.fillText(String(k), 10, yv(k) + 4); });
+    for (let s = 0; s <= 4; s++) { const x = m + w * s / 4; ctx.fillText(s + " s", x - 8, Hc - 8); }
+    let a = 0, x = 0, vv = 0; const pa = [], px = [], cib = [];
+    for (let i = 0; i <= N; i++) { const c = (i * dt) % 4 < 2 ? 1 : 0;
+      a = a + (c - a) * (1 - Math.exp(-v.k * dt)); vv += (c - x) * v.r * dt; vv *= Math.exp(-v.a * dt); x += vv * dt; pa.push(a); px.push(x); cib.push(c); }
+    const tracer = (arr, col, lw, dash) => { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.setLineDash(dash || []); ctx.beginPath(); arr.forEach((y, i) => { const X = m + w * i / N, Y = yv(y); i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y); }); ctx.stroke(); ctx.setLineDash([]); };
+    tracer(cib, ink2, 1.5, [5, 5]); tracer(pa, "#FF8C3C", 3); tracer(px, "#FF40C8", 3);
+    ctx.font = "600 14px 'IBM Plex Sans', sans-serif"; ctx.fillStyle = "#FF8C3C"; ctx.fillText("approche()", m + 8, m - 10); ctx.fillStyle = "#FF40C8"; ctx.fillText("ressort", m + 110, m - 10); ctx.fillStyle = ink2; ctx.fillText("cible", m + 190, m - 10);
+    const cur = reduit ? N : Math.floor(((now / 1000) % 4) / dt);
+    ctx.fillStyle = "#FF8C3C"; ctx.beginPath(); ctx.arc(m + w * cur / N, yv(pa[cur]), 6, 0, 7); ctx.fill();
+    ctx.fillStyle = "#FF40C8"; ctx.beginPath(); ctx.arc(m + w * cur / N, yv(px[cur]), 6, 0, 7); ctx.fill();
+  } });
+}
+
+// ======================================================================
+//  Polices
+// ======================================================================
+{
+  const sel = document.getElementById("txt-pol"), sc = document.getElementById("txt-coul");
+  Object.keys(P).forEach(n => sel.insertAdjacentHTML("beforeend", `<option${n === "POLICE_22" ? " selected" : ""}>${n}</option>`));
+  Object.keys(PAL).forEach(n => sc.insertAdjacentHTML("beforeend", `<option${n === "CYAN" ? " selected" : ""}>${n}</option>`));
+  const inp = document.getElementById("txt-in"), al = document.getElementById("txt-al"), sa = document.getElementById("txt-a");
+  let ecr;
+  function maj() {
+    const pol = P[sel.value], s = inp.value, a = +sa.value, align = +al.value;
+    document.getElementById("o-txt-a").textContent = a;
+    const manquent = [...new Set(Array.from(s).filter(ch => !Gfx.trouver(pol, ch.codePointAt(0))))];
+    const larg = ecr.g.largeur_texte(s, pol);
+    document.getElementById("txt-info").innerHTML = `Largeur renvoyée : <b>${larg} px</b> sur 320 · interligne ${pol.il} px · ` +
+      (manquent.length ? `<span class="manque">absents : ${manquent.map(echapper).join(" ")}</span>` : `<span class="ok">tous les caractères existent</span>`) +
+      (larg > 320 ? ` · <span class="manque">trop large pour l'écran</span>` : "");
+    const x = [10, 160, 310][align];
+    poserCode(document.getElementById("code-txt"), `gfx::texte(${x}, 40, "${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}", ${sel.value}, ${sc.value}, ${a}, gfx::${["GAUCHE", "CENTRE", "DROITE"][align]});`);
+    document.getElementById("txt-jeu").innerHTML = pol.gl.map(gl => echapper(String.fromCodePoint(gl[0]))).join(" ");
+    ecr.sale = true;
+  }
+  ecr = creerEcran(document.getElementById("ecran-txt"), e => {
+    const g = e.g, pol = P[sel.value], align = +al.value, x = [10, 160, 310][align];
+    fondEcran(g);
+    g.trait(x, 0, x, 120, 1, C.JAUNE, 110); g.trait(0, 40, 320, 40, 1, C.JAUNE, 70); g.trait(0, 40 + pol.asc, 320, 40 + pol.asc, 1, C.MAGENTA, 70);
+    g.texte(x, 40, inp.value, pol, C[sc.value], +sa.value, align);
+    g.texte(6, 106, "y = 40 (haut)   ligne de base = y + " + pol.asc, P.POLICE_11, C.TEXTE2);
+  }, { anime: false });
+  [sel, sc, al].forEach(x => x.addEventListener("change", maj)); [inp, sa].forEach(x => x.addEventListener("input", maj));
+  maj();
+}
+
+// ======================================================================
+//  Sommaire, blocs de code, démarrage
+// ======================================================================
+document.querySelectorAll(".code").forEach(equiperCode);
+{
+  const toc = document.getElementById("toc"), secs = [...document.querySelectorAll("main section.bloc")];
+  const titres = { intro: "Introduction", principe: "1 · Principe", tuto: "2 · Pas à pas", api: "3 · Référence API", animer: "4 · Animer", polices: "5 · Polices", vitrine: "6 · Vitrine", annexes: "7 · Annexes" };
+  secs.forEach(s => { toc.insertAdjacentHTML("beforeend", `<li><a href="#${s.id}" data-s="${s.id}">${titres[s.id]}</a></li>`);
+    if (s.id === "tuto") document.querySelectorAll(".etape").forEach(et => toc.insertAdjacentHTML("beforeend", `<li class="sous"><a href="#${et.id}" data-s="tuto">${et.querySelector(".num").textContent}. ${et.querySelector("h3").textContent}</a></li>`)); });
+  const liens = [...toc.querySelectorAll("a")];
+  const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { const id = x.target.id; liens.forEach(a => a.classList.toggle("actif", a.getAttribute("href") === "#" + id)); } }), { rootMargin: "-30% 0px -60% 0px" });
+  secs.forEach(s => io.observe(s)); document.querySelectorAll(".etape").forEach(s => io.observe(s));
+}
+demarrer();
+</script>
